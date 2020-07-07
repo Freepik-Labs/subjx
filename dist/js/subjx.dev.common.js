@@ -2400,16 +2400,6 @@ const checkElement = (el) => {
     }
 };
 
-const isIdentity = (matrix) => {
-    const { a, b, c, d, e, f } = matrix;
-    return a === 1 &&
-        b === 0 &&
-        c === 0 &&
-        d === 1 &&
-        e === 0 &&
-        f === 0;
-};
-
 const createPoint = (svg, x, y) => {
     if (isUndef(x) || isUndef(y)) {
         return null;
@@ -3324,9 +3314,7 @@ class DraggableSVG extends Transformable {
             scaleX,
             scaleY,
             dx,
-            dy,
-            ox,
-            oy
+            dy
         } = cached;
 
         if (actionName === 'drag') {
@@ -3340,46 +3328,12 @@ class DraggableSVG extends Transformable {
             const translateMatrix = eM.multiply(matrix)
                 .multiply(eM.inverse());
 
-            element.setAttribute(
-                'transform',
-                matrixToString(translateMatrix)
-            );
+            if (!isGroup(element)) {
+                element.setAttribute(
+                    'transform',
+                    matrixToString(translateMatrix)
+                );
 
-            if (isGroup(element)) {
-                const els = checkChildElements(element);
-
-                els.forEach(child => {
-                    const pt = container.createSVGPoint();
-                    const ctm = getTransformToElement(element.parentNode, container).inverse();
-                    pt.x = ox;
-                    pt.y = oy;
-                    ctm.e = ctm.f = 0;
-                    const newPT = pt.matrixTransform(ctm);
-
-                    const eM = createSVGMatrix();
-
-                    eM.e = dx;
-                    eM.f = dy;
-
-                    const translateMatrix = eM.multiply(
-                        getTransformToElement(child, child.parentNode)
-                    ).multiply(eM.inverse());
-
-                    if (!isIdentity(translateMatrix)) {
-                        child.setAttribute(
-                            'transform',
-                            matrixToString(translateMatrix)
-                        );
-                    }
-
-                    if (!isGroup(child)) {
-                        applyTranslate(child, {
-                            x: newPT.x,
-                            y: newPT.y
-                        });
-                    }
-                });
-            } else {
                 applyTranslate(element, {
                     x: dx,
                     y: dy
@@ -3407,22 +3361,7 @@ class DraggableSVG extends Transformable {
                 }
             );
 
-            if (isGroup(element)) {
-                const els = checkChildElements(element);
-
-                els.forEach(child => {
-                    if (!isGroup(child)) {
-                        applyResize(child, {
-                            scaleX,
-                            scaleY,
-                            defaultCTM: child.__ctm__,
-                            bBox: bBox,
-                            container,
-                            storage
-                        });
-                    }
-                });
-            } else {
+            if (!isGroup(element)) {
                 applyResize(element, {
                     scaleX,
                     scaleY,
@@ -3431,12 +3370,12 @@ class DraggableSVG extends Transformable {
                     container,
                     storage
                 });
-            }
 
-            element.setAttribute(
-                'transform',
-                matrixToString(matrix)
-            );
+                element.setAttribute(
+                    'transform',
+                    matrixToString(matrix)
+                );
+            }
         }
 
         this.storage.cached = null;
