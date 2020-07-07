@@ -2321,7 +2321,7 @@ const ALLOWED_ELEMENTS = [
     'image', 'line',
     'path', 'polygon',
     'polyline', 'rect',
-    'text', 'g'
+    'text', 'g', 'foreignobject'
 ];
 
 function createSVGElement(name) {
@@ -2391,8 +2391,8 @@ const checkElement = (el) => {
 
     if (ALLOWED_ELEMENTS.indexOf(tagName) === -1) {
         warn(
-            'Selected element is not allowed to transform. Allowed elements:\n' +
-            'circle, ellipse, image, line, path, polygon, polyline, rect, text, g'
+            'Selected element ' + tagName +' is not allowed to transform. Allowed elements:\n' +
+            'circle, ellipse, image, line, path, polygon, polyline, rect, text, g, foreignObject'
         );
         return false;
     } else {
@@ -3830,6 +3830,7 @@ const applyTranslate = (element, { x, y }) => {
         }
         case 'use':
         case 'image':
+        case 'foreignobject':
         case 'rect': {
             const resX = isDef(element.x.baseVal.value)
                 ? element.x.baseVal.value + x
@@ -3971,6 +3972,7 @@ const applyResize = (element, data) => {
             break;
         }
         case 'image':
+        case 'foreignobject':
         case 'rect': {
             const width = element.width.baseVal.value,
                 height = element.height.baseVal.value,

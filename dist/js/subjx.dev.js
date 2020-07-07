@@ -2281,7 +2281,7 @@
 
     var svgPoint = createSVGElement('svg').createSVGPoint();
     var floatRE = /[+-]?\d+(\.\d+)?/g;
-    var ALLOWED_ELEMENTS = ['circle', 'ellipse', 'image', 'line', 'path', 'polygon', 'polyline', 'rect', 'text', 'g'];
+    var ALLOWED_ELEMENTS = ['circle', 'ellipse', 'image', 'line', 'path', 'polygon', 'polyline', 'rect', 'text', 'g', 'foreignobject'];
     function createSVGElement(name) {
       return document.createElementNS('http://www.w3.org/2000/svg', name);
     }
@@ -2343,7 +2343,7 @@
       var tagName = el.tagName.toLowerCase();
 
       if (ALLOWED_ELEMENTS.indexOf(tagName) === -1) {
-        warn('Selected element is not allowed to transform. Allowed elements:\n' + 'circle, ellipse, image, line, path, polygon, polyline, rect, text, g');
+        warn('Selected element ' + tagName + ' is not allowed to transform. Allowed elements:\n' + 'circle, ellipse, image, line, path, polygon, polyline, rect, text, g, foreignObject');
         return false;
       } else {
         return true;
@@ -3494,6 +3494,7 @@
 
         case 'use':
         case 'image':
+        case 'foreignobject':
         case 'rect':
           {
             var _resX = isDef(element.x.baseVal.value) ? element.x.baseVal.value + x : (Number(element.getAttribute('x')) || 0) + x;
@@ -3596,6 +3597,7 @@
           }
 
         case 'image':
+        case 'foreignobject':
         case 'rect':
           {
             var width = element.width.baseVal.value,

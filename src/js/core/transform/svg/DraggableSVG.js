@@ -873,6 +873,7 @@ const applyTranslate = (element, { x, y }) => {
         }
         case 'use':
         case 'image':
+        case 'foreignobject':
         case 'rect': {
             const resX = isDef(element.x.baseVal.value)
                 ? element.x.baseVal.value + x
@@ -1016,6 +1017,7 @@ const applyResize = (element, data) => {
             break;
         }
         case 'image':
+        case 'foreignobject':
         case 'rect': {
             const width = element.width.baseVal.value,
                 height = element.height.baseVal.value,
