@@ -1089,7 +1089,7 @@ class Transformable extends SubjectModel {
             removeClass(radius, 'sjx-hidden');
         }
 
-        const doRotate = handle.is(rotator),
+        const doRotate = handle.is(rotator) || handle.is(rotator.firstElementChild),
             doSetCenter = isDef(center)
                 ? handle.is(center)
                 : false;
@@ -2993,6 +2993,7 @@ class DraggableSVG extends Transformable {
 
         const wrapper = createSVGElement('g');
         addClass(wrapper, 'sjx-svg-wrapper');
+        addClass(wrapper, el.nodeName);
         container.appendChild(wrapper);
 
         const {
@@ -4254,8 +4255,12 @@ const applyTransformToHandles = (
         const hdl = handles[key];
         const attr = attrs[key];
         if (isUndef(attr) || isUndef(hdl)) return;
-        hdl.setAttribute('cx', attr.x);
-        hdl.setAttribute('cy', attr.y);
+        if (hdl.tagName === 'g') {
+            hdl.setAttribute('transform', `matrix(1, 0, 0, 1, ${attr.x}, ${attr.y})`);
+        } else {
+            hdl.setAttribute('cx', attr.x);
+            hdl.setAttribute('cy', attr.y);
+        }
     });
 };
 

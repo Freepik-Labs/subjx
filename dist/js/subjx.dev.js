@@ -1285,7 +1285,7 @@
             removeClass(radius, 'sjx-hidden');
           }
 
-          var doRotate = handle.is(rotator),
+          var doRotate = handle.is(rotator) || handle.is(rotator.firstElementChild),
               doSetCenter = isDef(center) ? handle.is(center) : false;
           var doDrag = !(doRotate || doResize || doSetCenter);
           var clientX = e.clientX,
@@ -2891,6 +2891,7 @@
               custom = _this$options.custom;
           var wrapper = createSVGElement('g');
           addClass(wrapper, 'sjx-svg-wrapper');
+          addClass(wrapper, el.nodeName);
           container.appendChild(wrapper);
 
           var _el$getBBox = el.getBBox(),
@@ -3802,8 +3803,13 @@
         var hdl = handles[key];
         var attr = attrs[key];
         if (isUndef(attr) || isUndef(hdl)) return;
-        hdl.setAttribute('cx', attr.x);
-        hdl.setAttribute('cy', attr.y);
+
+        if (hdl.tagName === 'g') {
+          hdl.setAttribute('transform', "matrix(1, 0, 0, 1, ".concat(attr.x, ", ").concat(attr.y, ")"));
+        } else {
+          hdl.setAttribute('cx', attr.x);
+          hdl.setAttribute('cy', attr.y);
+        }
       });
     };
 
