@@ -3192,6 +3192,79 @@ class DraggableSVG extends Transformable {
             .on('touchstart', this._onTouchStart);
     }
 
+    fitTo(el, keepHeight) {
+        const { options, storage } = this;
+
+        const { container } = options;
+        const { wrapper, box, handles } = storage;
+
+        wrapper.removeAttribute("transform");
+
+        const { height, width } = el.getBBox();
+
+
+        const elCTM = getTransformToElement(el, container);
+
+        box.setAttribute('width', width);
+
+        if (!keepHeight) {
+            box.setAttribute('height', height);
+        }
+
+        box.setAttribute('transform', matrixToString(elCTM));
+
+        if (el.tagName === 'foreignObject') {
+            box.setAttribute('x', 0);
+            box.setAttribute('y', 0);
+        }
+
+        const { x: bX, y: bY, width: bW, height: bH } = box.getBBox();
+
+        const boxCTM = getTransformToElement(box, box.parentNode),
+            boxCenter = pointTo(boxCTM, container, bX + bW / 2);
+
+        el.setAttribute("data-cx", boxCenter.x);
+        el.setAttribute("data-cy", boxCenter.y);
+
+        const newHandles = {
+            tl: pointTo(boxCTM, container, bX),
+            tr: pointTo(boxCTM, container, bX + bW),
+            br: pointTo(boxCTM, container, bX + bW),
+            bl: pointTo(boxCTM, container, bX),
+            tc: pointTo(boxCTM, container, bX + bW / 2),
+            bc: pointTo(boxCTM, container, bX + bW / 2),
+            ml: pointTo(boxCTM, container, bX),
+            mr: pointTo(boxCTM, container, bX + bW),
+            rotator: {}
+        };
+
+        let theta = Math.atan2(newHandles.tl.y - newHandles.tr.y, newHandles.tl.x - newHandles.tr.x);
+        theta += (90 * Math.PI) / 180;
+
+        newHandles.rotator.x = newHandles.bc.x - 999 * Math.cos(theta);
+        newHandles.rotator.y = newHandles.bc.y - 999 * Math.sin(theta);
+
+        Object.keys(newHandles).forEach(key => {
+            const data = newHandles[key];
+
+            if (isUndef(data)) return;
+
+            const { x, y } = data;
+
+            if (key === "rotator") {
+                handles[key].setAttribute(
+                    "transform",
+                    `matrix(${1 / window.currentScale},0,0,${1 / window.currentScale},${x - 10 / window.currentScale},${y})`
+                );
+
+                return;
+            }
+
+            handles[key].setAttribute("cx", x);
+            handles[key].setAttribute("cy", y);
+        });
+    }
+
     _destroy() {
         const {
             wrapper

@@ -3044,6 +3044,75 @@
           helper(wrapper).on('mousedown', this._onMouseDown).on('touchstart', this._onTouchStart);
         }
       }, {
+        key: "fitTo",
+        value: function fitTo(el, keepHeight) {
+          var options = this.options,
+              storage = this.storage;
+          var container = options.container;
+          var wrapper = storage.wrapper,
+              box = storage.box,
+              handles = storage.handles;
+          wrapper.removeAttribute("transform");
+
+          var _el$getBBox2 = el.getBBox(),
+              height = _el$getBBox2.height,
+              width = _el$getBBox2.width;
+
+          var elCTM = getTransformToElement(el, container);
+          box.setAttribute('width', width);
+
+          if (!keepHeight) {
+            box.setAttribute('height', height);
+          }
+
+          box.setAttribute('transform', matrixToString(elCTM));
+
+          if (el.tagName === 'foreignObject') {
+            box.setAttribute('x', 0);
+            box.setAttribute('y', 0);
+          }
+
+          var _box$getBBox = box.getBBox(),
+              bX = _box$getBBox.x,
+              bY = _box$getBBox.y,
+              bW = _box$getBBox.width,
+              bH = _box$getBBox.height;
+
+          var boxCTM = getTransformToElement(box, box.parentNode),
+              boxCenter = pointTo(boxCTM, container, bX + bW / 2);
+          el.setAttribute("data-cx", boxCenter.x);
+          el.setAttribute("data-cy", boxCenter.y);
+          var newHandles = {
+            tl: pointTo(boxCTM, container, bX),
+            tr: pointTo(boxCTM, container, bX + bW),
+            br: pointTo(boxCTM, container, bX + bW),
+            bl: pointTo(boxCTM, container, bX),
+            tc: pointTo(boxCTM, container, bX + bW / 2),
+            bc: pointTo(boxCTM, container, bX + bW / 2),
+            ml: pointTo(boxCTM, container, bX),
+            mr: pointTo(boxCTM, container, bX + bW),
+            rotator: {}
+          };
+          var theta = Math.atan2(newHandles.tl.y - newHandles.tr.y, newHandles.tl.x - newHandles.tr.x);
+          theta += 90 * Math.PI / 180;
+          newHandles.rotator.x = newHandles.bc.x - 999 * Math.cos(theta);
+          newHandles.rotator.y = newHandles.bc.y - 999 * Math.sin(theta);
+          Object.keys(newHandles).forEach(function (key) {
+            var data = newHandles[key];
+            if (isUndef(data)) return;
+            var x = data.x,
+                y = data.y;
+
+            if (key === "rotator") {
+              handles[key].setAttribute("transform", "matrix(".concat(1 / window.currentScale, ",0,0,").concat(1 / window.currentScale, ",").concat(x - 10 / window.currentScale, ",").concat(y, ")"));
+              return;
+            }
+
+            handles[key].setAttribute("cx", x);
+            handles[key].setAttribute("cy", y);
+          });
+        }
+      }, {
         key: "_destroy",
         value: function _destroy() {
           var wrapper = this.storage.wrapper;
@@ -3135,11 +3204,11 @@
           }
 
           if (actionName === 'resize') {
-            var _box$getBBox = box.getBBox(),
-                x = _box$getBBox.x,
-                y = _box$getBBox.y,
-                newWidth = _box$getBBox.width,
-                newHeight = _box$getBBox.height;
+            var _box$getBBox2 = box.getBBox(),
+                x = _box$getBBox2.x,
+                y = _box$getBBox2.y,
+                newWidth = _box$getBBox2.width,
+                newHeight = _box$getBBox2.height;
 
             applyTransformToHandles(storage, options, {
               x: x,
@@ -3186,9 +3255,9 @@
               ptX = transform.scaleX,
               ptY = transform.scaleY;
 
-          var _el$getBBox2 = el.getBBox(),
-              newWidth = _el$getBBox2.width,
-              newHeight = _el$getBBox2.height;
+          var _el$getBBox3 = el.getBBox(),
+              newWidth = _el$getBBox3.width,
+              newHeight = _el$getBBox3.height;
 
           var ratio = doW || !doW && !doH ? (cw + dx) / cw : (ch + dy) / ch;
           newWidth = proportions ? cw * ratio : cw + dx;
@@ -3328,11 +3397,11 @@
               el_w = eBBox.width,
               el_h = eBBox.height;
 
-          var _box$getBBox2 = box.getBBox(),
-              cw = _box$getBBox2.width,
-              ch = _box$getBBox2.height,
-              c_left = _box$getBBox2.x,
-              c_top = _box$getBBox2.y;
+          var _box$getBBox3 = box.getBBox(),
+              cw = _box$getBBox3.width,
+              ch = _box$getBBox3.height,
+              c_left = _box$getBBox3.x,
+              c_top = _box$getBBox3.y;
 
           var elMatrix = getTransformToElement(element, parent),
               ctm = getTransformToElement(element, container),
@@ -3425,11 +3494,11 @@
               center = _this$storage4$handle.center,
               radius = _this$storage4$handle.radius;
 
-          var _box$getBBox3 = box.getBBox(),
-              cw = _box$getBBox3.width,
-              ch = _box$getBBox3.height,
-              c_left = _box$getBBox3.x,
-              c_top = _box$getBBox3.y;
+          var _box$getBBox4 = box.getBBox(),
+              cw = _box$getBBox4.width,
+              ch = _box$getBBox4.height,
+              c_left = _box$getBBox4.x,
+              c_top = _box$getBBox4.y;
 
           var matrix = getTransformToElement(box, box.parentNode);
 
@@ -3452,11 +3521,11 @@
               wrapper = _this$storage5.wrapper,
               container = this.options.container;
 
-          var _el$getBBox3 = el.getBBox(),
-              width = _el$getBBox3.width,
-              height = _el$getBBox3.height,
-              x = _el$getBBox3.x,
-              y = _el$getBBox3.y;
+          var _el$getBBox4 = el.getBBox(),
+              width = _el$getBBox4.width,
+              height = _el$getBBox4.height,
+              x = _el$getBBox4.x,
+              y = _el$getBBox4.y;
 
           var containerMatrix = getTransformToElement(el, container);
           wrapper.removeAttribute('transform');
