@@ -698,6 +698,7 @@ class Transformable extends SubjectModel {
         let _restrict = null,
             _proportions = false,
             _axis = 'xy',
+            _withoutScaling = false,
             _cursorMove = 'auto',
             _cursorResize = 'auto',
             _cursorRotate = 'auto',
@@ -742,7 +743,8 @@ class Transformable extends SubjectModel {
                 custom,
                 rotatorAnchor,
                 rotatorOffset,
-                showNormal
+                showNormal,
+                withoutScaling
             } = options;
 
             if (isDef(snap)) {
@@ -780,6 +782,7 @@ class Transformable extends SubjectModel {
 
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
+            _withoutScaling = withoutScaling || false;
 
             _draggable = isDef(draggable) ? draggable : true;
             _resizable = isDef(resizable) ? resizable : true;
@@ -815,7 +818,8 @@ class Transformable extends SubjectModel {
             custom: _custom,
             rotatorAnchor: _rotatorAnchor,
             rotatorOffset: _rotatorOffset,
-            showNormal: _showNormal
+            showNormal: _showNormal,
+            withoutScaling: _withoutScaling
         };
 
         this.proxyMethods = {
@@ -3194,75 +3198,31 @@ class DraggableSVG extends Transformable {
 
     fitTo(el, keepHeight) {
         const { options, storage } = this;
+        const { box } = storage;
 
-        const { container } = options;
-        const { wrapper, box, handles } = storage;
+        if (keepHeight) {
+            const boxHeight = parseFloat(box.getAttribute('height'));
+            const elHeight = parseFloat(el.getAttribute('height'));
 
-        wrapper.removeAttribute("transform");
-
-        const { height, width } = el.getBBox();
-
-
-        const elCTM = getTransformToElement(el, container);
-
-        box.setAttribute('width', width);
-
-        if (!keepHeight) {
-            box.setAttribute('height', height);
-        }
-
-        box.setAttribute('transform', matrixToString(elCTM));
-
-        if (el.tagName === 'foreignObject') {
-            box.setAttribute('x', 0);
-            box.setAttribute('y', 0);
-        }
-
-        const { x: bX, y: bY, width: bW, height: bH } = box.getBBox();
-
-        const boxCTM = getTransformToElement(box, box.parentNode),
-            boxCenter = pointTo(boxCTM, container, bX + bW / 2);
-
-        el.setAttribute("data-cx", boxCenter.x);
-        el.setAttribute("data-cy", boxCenter.y);
-
-        const newHandles = {
-            tl: pointTo(boxCTM, container, bX),
-            tr: pointTo(boxCTM, container, bX + bW),
-            br: pointTo(boxCTM, container, bX + bW),
-            bl: pointTo(boxCTM, container, bX),
-            tc: pointTo(boxCTM, container, bX + bW / 2),
-            bc: pointTo(boxCTM, container, bX + bW / 2),
-            ml: pointTo(boxCTM, container, bX),
-            mr: pointTo(boxCTM, container, bX + bW),
-            rotator: {}
-        };
-
-        let theta = Math.atan2(newHandles.tl.y - newHandles.tr.y, newHandles.tl.x - newHandles.tr.x);
-        theta += (90 * Math.PI) / 180;
-
-        newHandles.rotator.x = newHandles.bc.x - 999 * Math.cos(theta);
-        newHandles.rotator.y = newHandles.bc.y - 999 * Math.sin(theta);
-
-        Object.keys(newHandles).forEach(key => {
-            const data = newHandles[key];
-
-            if (isUndef(data)) return;
-
-            const { x, y } = data;
-
-            if (key === "rotator") {
-                handles[key].setAttribute(
-                    "transform",
-                    `matrix(${1 / window.currentScale},0,0,${1 / window.currentScale},${x - 10 / window.currentScale},${y})`
-                );
-
-                return;
+            if (elHeight < boxHeight) {
+                el.setAttribute('height', boxHeight);
             }
+        }
 
-            handles[key].setAttribute("cx", x);
-            handles[key].setAttribute("cy", y);
-        });
+        box.setAttribute('height', el.getAttribute('height'));
+        const { x, y } = box.getBBox();
+
+        applyTransformToHandles(
+            storage,
+            options,
+            {
+                x,
+                y,
+                width: parseFloat(box.getAttribute('width')),
+                height: parseFloat(box.getAttribute('height')),
+                boxMatrix: null
+            }
+        );
     }
 
     _destroy() {
@@ -3440,7 +3400,8 @@ class DraggableSVG extends Transformable {
                     defaultCTM: ctm,
                     bBox: bBox,
                     container,
-                    storage
+                    storage,
+                    withoutScaling: options.withoutScaling
                 });
 
                 element.setAttribute(
@@ -3458,7 +3419,7 @@ class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions }
+            options: { proportions, withoutScaling }
         } = this;
 
         const {
@@ -3510,6 +3471,18 @@ class DraggableSVG extends Transformable {
         trMatrix.e = ptX;
         trMatrix.f = ptY;
 
+        if (withoutScaling) {
+            const diffDx = dx < 0 ? Math.abs(dx) : -Math.abs(dx),
+                diffDy = dy < 0 ? Math.abs(dy) : -Math.abs(dy);
+
+            scMatrix.a = 1;
+            scMatrix.b = 0;
+            scMatrix.c = 0;
+            scMatrix.d = 1;
+            scMatrix.e = revX ? diffDx : 0;
+            scMatrix.f = revY ? diffDy : 0;
+        }
+
         //now must to do: translate(x y) scale(sx sy) translate(-x -y)
         const scaleMatrix = trMatrix
             .multiply(scMatrix)
@@ -3521,6 +3494,12 @@ class DraggableSVG extends Transformable {
             'transform',
             matrixToString(res)
         );
+
+        if (withoutScaling) {
+            el.setAttribute("width", newWidth);
+            el.setAttribute("height", newHeight);
+        }
+
 
         const deltaW = newWidth - cw,
             deltaH = newHeight - ch;
@@ -3539,6 +3518,7 @@ class DraggableSVG extends Transformable {
             width: newWidth,
             height: newHeight
         };
+
 
         applyTransformToHandles(
             storage,
@@ -3983,7 +3963,8 @@ const applyResize = (element, data) => {
         scaleY,
         bBox,
         defaultCTM,
-        container
+        container,
+        withoutScaling
     } = data;
 
     const {
@@ -4065,10 +4046,15 @@ const applyResize = (element, data) => {
 
             attrs.push(
                 ['x', resX - (scaleX < 0 ? newWidth : 0)],
-                ['y', resY - (scaleY < 0 ? newHeight : 0)],
-                ['width', newWidth],
-                ['height', newHeight]
+                ['y', resY - (scaleY < 0 ? newHeight : 0)]
             );
+
+            if (!withoutScaling) {
+                attrs.push(
+                    ['width', newWidth],
+                    ['height', newHeight]
+                );
+            }
             break;
         }
         case 'ellipse': {
@@ -4175,6 +4161,7 @@ const applyResize = (element, data) => {
         }
 
     }
+
 
     attrs.forEach(([key, value]) => {
         element.setAttribute(key, value);

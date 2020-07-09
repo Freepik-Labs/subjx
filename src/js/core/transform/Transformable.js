@@ -80,6 +80,7 @@ export default class Transformable extends SubjectModel {
         let _restrict = null,
             _proportions = false,
             _axis = 'xy',
+            _withoutScaling = false,
             _cursorMove = 'auto',
             _cursorResize = 'auto',
             _cursorRotate = 'auto',
@@ -124,7 +125,8 @@ export default class Transformable extends SubjectModel {
                 custom,
                 rotatorAnchor,
                 rotatorOffset,
-                showNormal
+                showNormal,
+                withoutScaling
             } = options;
 
             if (isDef(snap)) {
@@ -162,6 +164,7 @@ export default class Transformable extends SubjectModel {
 
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
+            _withoutScaling = withoutScaling || false;
 
             _draggable = isDef(draggable) ? draggable : true;
             _resizable = isDef(resizable) ? resizable : true;
@@ -197,7 +200,8 @@ export default class Transformable extends SubjectModel {
             custom: _custom,
             rotatorAnchor: _rotatorAnchor,
             rotatorOffset: _rotatorOffset,
-            showNormal: _showNormal
+            showNormal: _showNormal,
+            withoutScaling: _withoutScaling
         };
 
         this.proxyMethods = {
