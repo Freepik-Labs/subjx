@@ -1627,14 +1627,17 @@
         }
       }, {
         key: "disable",
-        value: function disable() {
+        value: function disable(clientX, clientY) {
           var storage = this.storage,
               proxyMethods = this.proxyMethods,
               el = this.el;
           if (isUndef(storage)) return; // unexpected case
 
           if (storage.onExecution) {
-            this._end();
+            this._end({
+              clientX: clientX,
+              clientY: clientY
+            });
 
             helper(document).off('mousemove', this._onMouseMove).off('mouseup', this._onMouseUp).off('touchmove', this._onTouchMove).off('touchend', this._onTouchEnd);
           }

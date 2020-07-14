@@ -1478,7 +1478,7 @@ class Transformable extends SubjectModel {
             .unsubscribe('onrotate', this);
     }
 
-    disable() {
+    disable(clientX, clientY) {
         const {
             storage,
             proxyMethods,
@@ -1489,7 +1489,7 @@ class Transformable extends SubjectModel {
 
         // unexpected case
         if (storage.onExecution) {
-            this._end();
+            this._end({clientX, clientY});
             helper(document)
                 .off('mousemove', this._onMouseMove)
                 .off('mouseup', this._onMouseUp)
