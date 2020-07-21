@@ -2387,6 +2387,9 @@
     var isGroup = function isGroup(element) {
       return element.tagName.toLowerCase() === 'g';
     };
+    var shouldKeepTransformations = function shouldKeepTransformations(element) {
+      return ['g', 'foreignobject', 'svg'].includes(element.tagName.toLowerCase());
+    };
     var parsePoints = function parsePoints(pts) {
       return pts.match(floatRE).reduce(function (result, value, index, array) {
         if (index % 2 === 0) {
@@ -3180,7 +3183,7 @@
             eM.f = dy;
             var translateMatrix = eM.multiply(matrix).multiply(eM.inverse());
 
-            if (!isGroup(element)) {
+            if (!shouldKeepTransformations(element)) {
               element.setAttribute('transform', matrixToString(translateMatrix));
               applyTranslate(element, {
                 x: dx,
@@ -3204,7 +3207,8 @@
               boxMatrix: null
             });
 
-            if (!isGroup(element)) {
+            if (!shouldKeepTransformations(element)) {
+              debugger;
               applyResize(element, {
                 scaleX: scaleX,
                 scaleY: scaleY,
@@ -3577,7 +3581,6 @@
 
         case 'use':
         case 'image':
-        case 'foreignobject':
         case 'rect':
           {
             var _resX = isDef(element.x.baseVal.value) ? element.x.baseVal.value + x : (Number(element.getAttribute('x')) || 0) + x;

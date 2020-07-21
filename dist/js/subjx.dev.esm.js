@@ -2435,6 +2435,10 @@ const isGroup = (element) => {
     return element.tagName.toLowerCase() === 'g';
 };
 
+const shouldKeepTransformations = (element) => {
+    return ['g', 'foreignobject', 'svg'].includes(element.tagName.toLowerCase());
+};
+
 const parsePoints = (pts) => {
     return pts.match(floatRE).reduce(
         (result, value, index, array) => {
@@ -3379,7 +3383,7 @@ class DraggableSVG extends Transformable {
             const translateMatrix = eM.multiply(matrix)
                 .multiply(eM.inverse());
 
-            if (!isGroup(element)) {
+            if (!shouldKeepTransformations(element)) {
                 element.setAttribute(
                     'transform',
                     matrixToString(translateMatrix)
@@ -3412,7 +3416,8 @@ class DraggableSVG extends Transformable {
                 }
             );
 
-            if (!isGroup(element)) {
+            if (!shouldKeepTransformations(element)) {
+                debugger;
                 applyResize(element, {
                     scaleX,
                     scaleY,
@@ -3910,7 +3915,6 @@ const applyTranslate = (element, { x, y }) => {
         }
         case 'use':
         case 'image':
-        case 'foreignobject':
         case 'rect': {
             const resX = isDef(element.x.baseVal.value)
                 ? element.x.baseVal.value + x

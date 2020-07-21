@@ -115,6 +115,10 @@ export const isGroup = (element) => {
     return element.tagName.toLowerCase() === 'g';
 };
 
+export const shouldKeepTransformations = (element) => {
+    return ['g', 'foreignobject', 'svg'].includes(element.tagName.toLowerCase());
+};
+
 export const parsePoints = (pts) => {
     return pts.match(floatRE).reduce(
         (result, value, index, array) => {

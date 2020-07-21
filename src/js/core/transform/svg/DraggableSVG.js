@@ -10,11 +10,10 @@ import {
     createSVGElement,
     createSVGMatrix,
     createPoint,
-    isGroup,
     parsePoints,
     getTransformToElement,
     matrixToString,
-    pointTo
+    pointTo, shouldKeepTransformations
 } from './util';
 
 const MIN_SIZE = 5;
@@ -401,7 +400,7 @@ export default class DraggableSVG extends Transformable {
             const translateMatrix = eM.multiply(matrix)
                 .multiply(eM.inverse());
 
-            if (!isGroup(element)) {
+            if (!shouldKeepTransformations(element)) {
                 element.setAttribute(
                     'transform',
                     matrixToString(translateMatrix)
@@ -434,7 +433,8 @@ export default class DraggableSVG extends Transformable {
                 }
             );
 
-            if (!isGroup(element)) {
+            if (!shouldKeepTransformations(element)) {
+                debugger;
                 applyResize(element, {
                     scaleX,
                     scaleY,
@@ -932,7 +932,6 @@ const applyTranslate = (element, { x, y }) => {
         }
         case 'use':
         case 'image':
-        case 'foreignobject':
         case 'rect': {
             const resX = isDef(element.x.baseVal.value)
                 ? element.x.baseVal.value + x
