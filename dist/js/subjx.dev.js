@@ -982,6 +982,8 @@
               _proportions = false,
               _axis = 'xy',
               _withoutScaling = false,
+              _processMove = false,
+              _minStartDistance = false,
               _cursorMove = 'auto',
               _cursorResize = 'auto',
               _cursorRotate = 'auto',
@@ -1026,7 +1028,9 @@
                 rotatorAnchor = options.rotatorAnchor,
                 rotatorOffset = options.rotatorOffset,
                 showNormal = options.showNormal,
-                withoutScaling = options.withoutScaling;
+                withoutScaling = options.withoutScaling,
+                minStartDistance = options.minStartDistance,
+                processMove = options.processMove;
 
             if (isDef(snap)) {
               var x = snap.x,
@@ -1058,6 +1062,8 @@
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
             _withoutScaling = withoutScaling || false;
+            _minStartDistance = minStartDistance || false;
+            _processMove = processMove || false;
             _draggable = isDef(draggable) ? draggable : true;
             _resizable = isDef(resizable) ? resizable : true;
             _rotatable = isDef(rotatable) ? rotatable : true;
@@ -1091,7 +1097,9 @@
             rotatorAnchor: _rotatorAnchor,
             rotatorOffset: _rotatorOffset,
             showNormal: _showNormal,
-            withoutScaling: _withoutScaling
+            withoutScaling: _withoutScaling,
+            minStartDistance: _minStartDistance,
+            processMove: _processMove
           };
           this.proxyMethods = {
             onInit: _onInit,
@@ -1132,7 +1140,8 @@
               restrict = options.restrict,
               draggable = options.draggable,
               resizable = options.resizable,
-              rotatable = options.rotatable;
+              rotatable = options.rotatable,
+              minStartDistance = options.minStartDistance;
 
           if (doResize && resizable) {
             var transform = storage.transform,
@@ -1203,7 +1212,15 @@
 
             var _dx = dox ? snapToGrid(clientX - nx, snap.x) : 0;
 
-            var _dy = doy ? snapToGrid(clientY - ny, snap.y) : 0;
+            var _dy = doy ? snapToGrid(clientY - ny, snap.y) : 0; // support for minimal initial movement
+
+
+            if (minStartDistance && Math.abs(clientX - nx) < minStartDistance && Math.abs(clientY - ny) < minStartDistance && !storage.outOfSnap) {
+              _dx = 0;
+              _dy = 0;
+            } else {
+              storage.outOfSnap = true;
+            }
 
             var _args = {
               dx: _dx,
@@ -1444,6 +1461,7 @@
             this._emitEvent('dragEnd', eventArgs);
           }
 
+          storage.outOfSnap = false;
           var move = each.move,
               resize = each.resize,
               rotate = each.rotate;
@@ -3294,6 +3312,7 @@
               transform = _this$storage.transform,
               wrapper = _this$storage.wrapper,
               center = _this$storage.center;
+          var processMove = this.options.processMove;
           var matrix = transform.matrix,
               trMatrix = transform.trMatrix,
               scMatrix = transform.scMatrix,
@@ -3301,6 +3320,11 @@
               parentMatrix = transform.parentMatrix;
           scMatrix.e = dx;
           scMatrix.f = dy;
+
+          if (processMove) {
+            processMove(dx, dy, parentMatrix, scMatrix, trMatrix);
+          }
+
           var moveWrapperMtrx = scMatrix.multiply(wrapperMatrix);
           wrapper.setAttribute('transform', matrixToString(moveWrapperMtrx));
           parentMatrix.e = parentMatrix.f = 0;

@@ -81,6 +81,8 @@ export default class Transformable extends SubjectModel {
             _proportions = false,
             _axis = 'xy',
             _withoutScaling = false,
+            _processMove = false,
+            _minStartDistance = false,
             _cursorMove = 'auto',
             _cursorResize = 'auto',
             _cursorRotate = 'auto',
@@ -126,7 +128,9 @@ export default class Transformable extends SubjectModel {
                 rotatorAnchor,
                 rotatorOffset,
                 showNormal,
-                withoutScaling
+                withoutScaling,
+                minStartDistance,
+                processMove
             } = options;
 
             if (isDef(snap)) {
@@ -165,6 +169,8 @@ export default class Transformable extends SubjectModel {
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
             _withoutScaling = withoutScaling || false;
+            _minStartDistance = minStartDistance || false;
+            _processMove = processMove || false;
 
             _draggable = isDef(draggable) ? draggable : true;
             _resizable = isDef(resizable) ? resizable : true;
@@ -201,7 +207,9 @@ export default class Transformable extends SubjectModel {
             rotatorAnchor: _rotatorAnchor,
             rotatorOffset: _rotatorOffset,
             showNormal: _showNormal,
-            withoutScaling: _withoutScaling
+            withoutScaling: _withoutScaling,
+            minStartDistance: _minStartDistance,
+            processMove: _processMove
         };
 
         this.proxyMethods = {
@@ -254,7 +262,8 @@ export default class Transformable extends SubjectModel {
             restrict,
             draggable,
             resizable,
-            rotatable
+            rotatable,
+            minStartDistance
         } = options;
 
         if (doResize && resizable) {
@@ -345,13 +354,21 @@ export default class Transformable extends SubjectModel {
                 }
             }
 
-            const dx = dox
+            let dx = dox
                 ? snapToGrid(clientX - nx, snap.x)
                 : 0;
 
-            const dy = doy
+            let dy = doy
                 ? snapToGrid(clientY - ny, snap.y)
                 : 0;
+
+            // support for minimal initial movement
+            if(minStartDistance && Math.abs(clientX - nx) < minStartDistance && Math.abs(clientY - ny) < minStartDistance && !storage.outOfSnap) {
+                dx = 0;
+                dy = 0;
+            } else {
+                storage.outOfSnap = true;
+            }
 
             const args = {
                 dx,
@@ -682,6 +699,8 @@ export default class Transformable extends SubjectModel {
         } else if (doDrag) {
             this._emitEvent('dragEnd', eventArgs);
         }
+
+        storage.outOfSnap = false;
 
         const {
             move,
