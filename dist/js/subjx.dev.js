@@ -3322,13 +3322,9 @@
               scMatrix = transform.scMatrix,
               wrapperMatrix = transform.wrapperMatrix,
               parentMatrix = transform.parentMatrix;
-          scMatrix.e = dx;
-          scMatrix.f = dy;
-
-          if (processMove) {
-            processMove(dx, dy, parentMatrix, scMatrix, trMatrix);
-          }
-
+          var moved = processMove && processMove(dx, dy);
+          scMatrix.e = dx + (moved && moved.x ? moved.x : 0);
+          scMatrix.f = dy + (moved && moved.y ? moved.y : 0);
           var moveWrapperMtrx = scMatrix.multiply(wrapperMatrix);
           wrapper.setAttribute('transform', matrixToString(moveWrapperMtrx));
           parentMatrix.e = parentMatrix.f = 0;
@@ -3337,8 +3333,8 @@
               x = _pointTo.x,
               y = _pointTo.y;
 
-          trMatrix.e = x;
-          trMatrix.f = y;
+          trMatrix.e = x + (moved && moved.x ? moved.x : 0);
+          trMatrix.f = y + (moved && moved.y ? moved.y : 0);
           var moveElementMtrx = trMatrix.multiply(matrix);
           this.el.setAttribute('transform', matrixToString(moveElementMtrx));
           this.storage.cached = {

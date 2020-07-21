@@ -593,12 +593,11 @@ export default class DraggableSVG extends Transformable {
             parentMatrix
         } = transform;
 
-        scMatrix.e = dx;
-        scMatrix.f = dy;
 
-        if (processMove) {
-            processMove(dx, dy, parentMatrix, scMatrix, trMatrix);
-        }
+        const moved = processMove && processMove(dx, dy);
+
+        scMatrix.e = dx + (moved && moved.x ? moved.x : 0);
+        scMatrix.f = dy + (moved && moved.y ? moved.y : 0);
 
         const moveWrapperMtrx = scMatrix.multiply(wrapperMatrix);
 
@@ -614,8 +613,8 @@ export default class DraggableSVG extends Transformable {
             dy
         );
 
-        trMatrix.e = x;
-        trMatrix.f = y;
+        trMatrix.e = x + (moved && moved.x ? moved.x : 0);
+        trMatrix.f = y + (moved && moved.y ? moved.y : 0);
 
         const moveElementMtrx = trMatrix.multiply(matrix);
 
