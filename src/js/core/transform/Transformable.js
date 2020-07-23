@@ -490,7 +490,7 @@ export default class Transformable extends SubjectModel {
             removeClass(radius, 'sjx-hidden');
         }
 
-        const doRotate = handle.is(rotator) || handle.is(rotator.firstElementChild),
+        const doRotate = handle.is(rotator) || (rotator && handle.is(rotator.firstElementChild)),
             doSetCenter = isDef(center)
                 ? handle.is(center)
                 : false;

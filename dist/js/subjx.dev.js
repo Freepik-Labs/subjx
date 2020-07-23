@@ -1306,7 +1306,7 @@
             removeClass(radius, 'sjx-hidden');
           }
 
-          var doRotate = handle.is(rotator) || handle.is(rotator.firstElementChild),
+          var doRotate = handle.is(rotator) || rotator && handle.is(rotator.firstElementChild),
               doSetCenter = isDef(center) ? handle.is(center) : false;
           var doDrag = !(doRotate || doResize || doSetCenter);
           var clientX = e.clientX,
@@ -3208,7 +3208,6 @@
             });
 
             if (!shouldKeepTransformations(element)) {
-              debugger;
               applyResize(element, {
                 scaleX: scaleX,
                 scaleY: scaleY,

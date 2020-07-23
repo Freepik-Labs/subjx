@@ -434,7 +434,6 @@ export default class DraggableSVG extends Transformable {
             );
 
             if (!shouldKeepTransformations(element)) {
-                debugger;
                 applyResize(element, {
                     scaleX,
                     scaleY,
