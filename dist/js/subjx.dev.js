@@ -2930,7 +2930,7 @@
 
           var elCTM = getTransformToElement(el, container);
           var box = createSVGElement('rect');
-          var attrs = [['width', cw], ['height', ch], ['x', cx], ['y', cy], ['fill', THEME_COLOR], ['fill-opacity', 0.1], ['stroke', THEME_COLOR], ['stroke-dasharray', '3 3'], ['vector-effect', 'non-scaling-stroke'], ['transform', matrixToString(elCTM)]];
+          var attrs = [['width', cw], ['height', ch], ['x', cx], ['y', cy], ['fill', THEME_COLOR], ['fill-opacity', 0], ['stroke', THEME_COLOR], ['stroke-dasharray', '3 3'], ['vector-effect', 'non-scaling-stroke'], ['transform', matrixToString(elCTM)]];
           attrs.forEach(function (_ref) {
             var _ref2 = _slicedToArray(_ref, 2),
                 key = _ref2[0],

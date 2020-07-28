@@ -3039,7 +3039,7 @@ class DraggableSVG extends Transformable {
             ['x', cx],
             ['y', cy],
             ['fill', THEME_COLOR],
-            ['fill-opacity', 0.1],
+            ['fill-opacity', 0],
             ['stroke', THEME_COLOR],
             ['stroke-dasharray', '3 3'],
             ['vector-effect', 'non-scaling-stroke'],
