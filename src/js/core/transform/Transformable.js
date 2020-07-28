@@ -81,6 +81,7 @@ export default class Transformable extends SubjectModel {
             _proportions = false,
             _axis = 'xy',
             _withoutScaling = false,
+            _minSize = 5,
             _processMove = false,
             _minStartDistance = false,
             _cursorMove = 'auto',
@@ -129,6 +130,7 @@ export default class Transformable extends SubjectModel {
                 rotatorOffset,
                 showNormal,
                 withoutScaling,
+                minSize,
                 minStartDistance,
                 processMove
             } = options;
@@ -169,6 +171,7 @@ export default class Transformable extends SubjectModel {
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
             _withoutScaling = withoutScaling || false;
+            _minSize = minSize || 5;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
 
@@ -208,6 +211,7 @@ export default class Transformable extends SubjectModel {
             rotatorOffset: _rotatorOffset,
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
+            minSize: _minSize,
             minStartDistance: _minStartDistance,
             processMove: _processMove
         };

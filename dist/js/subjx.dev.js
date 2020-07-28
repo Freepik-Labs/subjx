@@ -982,6 +982,7 @@
               _proportions = false,
               _axis = 'xy',
               _withoutScaling = false,
+              _minSize = 5,
               _processMove = false,
               _minStartDistance = false,
               _cursorMove = 'auto',
@@ -1029,6 +1030,7 @@
                 rotatorOffset = options.rotatorOffset,
                 showNormal = options.showNormal,
                 withoutScaling = options.withoutScaling,
+                minSize = options.minSize,
                 minStartDistance = options.minStartDistance,
                 processMove = options.processMove;
 
@@ -1062,6 +1064,7 @@
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
             _withoutScaling = withoutScaling || false;
+            _minSize = minSize || 5;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
             _draggable = isDef(draggable) ? draggable : true;
@@ -1098,6 +1101,7 @@
             rotatorOffset: _rotatorOffset,
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
+            minSize: _minSize,
             minStartDistance: _minStartDistance,
             processMove: _processMove
           };
@@ -2891,7 +2895,6 @@
       }
     };
 
-    var MIN_SIZE$1 = 5;
     var THEME_COLOR = '#00a8ff';
 
     var DraggableSVG = /*#__PURE__*/function (_Transformable) {
@@ -3231,7 +3234,8 @@
               options = this.options,
               _this$options2 = this.options,
               proportions = _this$options2.proportions,
-              withoutScaling = _this$options2.withoutScaling;
+              withoutScaling = _this$options2.withoutScaling,
+              minSize = _this$options2.minSize;
           var left = storage.left,
               top = storage.top,
               cw = storage.cw,
@@ -3254,7 +3258,16 @@
           var ratio = doW || !doW && !doH ? (cw + dx) / cw : (ch + dy) / ch;
           newWidth = proportions ? cw * ratio : cw + dx;
           newHeight = proportions ? ch * ratio : ch + dy;
-          if (Math.abs(newWidth) <= MIN_SIZE$1 || Math.abs(newHeight) <= MIN_SIZE$1) return;
+          if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
+
+          if (withoutScaling && newWidth <= 0) {
+            return;
+          }
+
+          if (withoutScaling && newHeight <= 0) {
+            return;
+          }
+
           var scaleX = newWidth / cw,
               scaleY = newHeight / ch; // setup scale matrix
 

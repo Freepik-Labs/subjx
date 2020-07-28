@@ -699,6 +699,7 @@ class Transformable extends SubjectModel {
             _proportions = false,
             _axis = 'xy',
             _withoutScaling = false,
+            _minSize = 5,
             _processMove = false,
             _minStartDistance = false,
             _cursorMove = 'auto',
@@ -747,6 +748,7 @@ class Transformable extends SubjectModel {
                 rotatorOffset,
                 showNormal,
                 withoutScaling,
+                minSize,
                 minStartDistance,
                 processMove
             } = options;
@@ -787,6 +789,7 @@ class Transformable extends SubjectModel {
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
             _withoutScaling = withoutScaling || false;
+            _minSize = minSize || 5;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
 
@@ -826,6 +829,7 @@ class Transformable extends SubjectModel {
             rotatorOffset: _rotatorOffset,
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
+            minSize: _minSize,
             minStartDistance: _minStartDistance,
             processMove: _processMove
         };
@@ -2999,7 +3003,6 @@ const resizePath = (params) => {
     }
 };
 
-const MIN_SIZE$1 = 5;
 const THEME_COLOR = '#00a8ff';
 
 class DraggableSVG extends Transformable {
@@ -3442,7 +3445,7 @@ class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions, withoutScaling }
+            options: { proportions, withoutScaling, minSize }
         } = this;
 
         const {
@@ -3477,7 +3480,15 @@ class DraggableSVG extends Transformable {
         newWidth = proportions ? cw * ratio : cw + dx;
         newHeight = proportions ? ch * ratio : ch + dy;
 
-        if (Math.abs(newWidth) <= MIN_SIZE$1 || Math.abs(newHeight) <= MIN_SIZE$1) return;
+        if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
+
+        if (withoutScaling && newWidth <= 0) {
+            return;
+        }
+
+        if (withoutScaling && newHeight <= 0) {
+            return;
+        }
 
         const scaleX = newWidth / cw,
             scaleY = newHeight / ch;
