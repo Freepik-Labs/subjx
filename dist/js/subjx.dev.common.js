@@ -702,6 +702,7 @@ class Transformable extends SubjectModel {
             _axis = 'xy',
             _withoutScaling = false,
             _minSize = 5,
+            _allowReversing = true,
             _processMove = false,
             _minStartDistance = false,
             _cursorMove = 'auto',
@@ -751,6 +752,7 @@ class Transformable extends SubjectModel {
                 showNormal,
                 withoutScaling,
                 minSize,
+                allowReversing,
                 minStartDistance,
                 processMove
             } = options;
@@ -792,6 +794,7 @@ class Transformable extends SubjectModel {
             _proportions = proportions || false;
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
+            _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
 
@@ -832,6 +835,7 @@ class Transformable extends SubjectModel {
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
             minSize: _minSize,
+            allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
             processMove: _processMove
         };
@@ -3447,7 +3451,7 @@ class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions, withoutScaling, minSize }
+            options: { proportions, withoutScaling, minSize, allowReversing }
         } = this;
 
         const {
@@ -3482,13 +3486,14 @@ class DraggableSVG extends Transformable {
         newWidth = proportions ? cw * ratio : cw + dx;
         newHeight = proportions ? ch * ratio : ch + dy;
 
+
         if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
 
-        if (withoutScaling && newWidth <= 0) {
+        if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
         }
 
-        if (withoutScaling && newHeight <= 0) {
+        if ((withoutScaling || allowReversing) && newHeight <= 0) {
             return;
         }
 

@@ -458,7 +458,7 @@ export default class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions, withoutScaling, minSize }
+            options: { proportions, withoutScaling, minSize, allowReversing }
         } = this;
 
         const {
@@ -493,13 +493,14 @@ export default class DraggableSVG extends Transformable {
         newWidth = proportions ? cw * ratio : cw + dx;
         newHeight = proportions ? ch * ratio : ch + dy;
 
+
         if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
 
-        if (withoutScaling && newWidth <= 0) {
+        if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
         }
 
-        if (withoutScaling && newHeight <= 0) {
+        if ((withoutScaling || allowReversing) && newHeight <= 0) {
             return;
         }
 

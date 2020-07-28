@@ -983,6 +983,7 @@
               _axis = 'xy',
               _withoutScaling = false,
               _minSize = 5,
+              _allowReversing = true,
               _processMove = false,
               _minStartDistance = false,
               _cursorMove = 'auto',
@@ -1031,6 +1032,7 @@
                 showNormal = options.showNormal,
                 withoutScaling = options.withoutScaling,
                 minSize = options.minSize,
+                allowReversing = options.allowReversing,
                 minStartDistance = options.minStartDistance,
                 processMove = options.processMove;
 
@@ -1065,6 +1067,7 @@
             _proportions = proportions || false;
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
+            _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
             _draggable = isDef(draggable) ? draggable : true;
@@ -1102,6 +1105,7 @@
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
             minSize: _minSize,
+            allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
             processMove: _processMove
           };
@@ -3235,7 +3239,8 @@
               _this$options2 = this.options,
               proportions = _this$options2.proportions,
               withoutScaling = _this$options2.withoutScaling,
-              minSize = _this$options2.minSize;
+              minSize = _this$options2.minSize,
+              allowReversing = _this$options2.allowReversing;
           var left = storage.left,
               top = storage.top,
               cw = storage.cw,
@@ -3260,11 +3265,11 @@
           newHeight = proportions ? ch * ratio : ch + dy;
           if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
 
-          if (withoutScaling && newWidth <= 0) {
+          if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
           }
 
-          if (withoutScaling && newHeight <= 0) {
+          if ((withoutScaling || allowReversing) && newHeight <= 0) {
             return;
           }
 
