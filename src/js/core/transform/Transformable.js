@@ -270,8 +270,7 @@ export default class Transformable extends SubjectModel {
             restrict,
             draggable,
             resizable,
-            rotatable,
-            minStartDistance
+            rotatable
         } = options;
 
         if (doResize && resizable) {
@@ -369,14 +368,6 @@ export default class Transformable extends SubjectModel {
             let dy = doy
                 ? snapToGrid(clientY - ny, snap.y)
                 : 0;
-
-            // support for minimal initial movement
-            if(minStartDistance && Math.abs(clientX - nx) < minStartDistance && Math.abs(clientY - ny) < minStartDistance && !storage.outOfSnap) {
-                dx = 0;
-                dy = 0;
-            } else {
-                storage.outOfSnap = true;
-            }
 
             const args = {
                 dx,

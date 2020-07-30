@@ -1148,8 +1148,7 @@
               restrict = options.restrict,
               draggable = options.draggable,
               resizable = options.resizable,
-              rotatable = options.rotatable,
-              minStartDistance = options.minStartDistance;
+              rotatable = options.rotatable;
 
           if (doResize && resizable) {
             var transform = storage.transform,
@@ -1220,15 +1219,7 @@
 
             var _dx = dox ? snapToGrid(clientX - nx, snap.x) : 0;
 
-            var _dy = doy ? snapToGrid(clientY - ny, snap.y) : 0; // support for minimal initial movement
-
-
-            if (minStartDistance && Math.abs(clientX - nx) < minStartDistance && Math.abs(clientY - ny) < minStartDistance && !storage.outOfSnap) {
-              _dx = 0;
-              _dy = 0;
-            } else {
-              storage.outOfSnap = true;
-            }
+            var _dy = doy ? snapToGrid(clientY - ny, snap.y) : 0;
 
             var _args = {
               dx: _dx,
@@ -3333,12 +3324,22 @@
               transform = _this$storage.transform,
               wrapper = _this$storage.wrapper,
               center = _this$storage.center;
-          var processMove = this.options.processMove;
+          var _this$options3 = this.options,
+              processMove = _this$options3.processMove,
+              minStartDistance = _this$options3.minStartDistance;
           var matrix = transform.matrix,
               trMatrix = transform.trMatrix,
               scMatrix = transform.scMatrix,
               wrapperMatrix = transform.wrapperMatrix,
-              parentMatrix = transform.parentMatrix;
+              parentMatrix = transform.parentMatrix; // support for minimal initial movement
+
+          if (!this.storage.outOfSnap && minStartDistance && Math.abs(dx) < minStartDistance && Math.abs(dy) < minStartDistance) {
+            dx = 0;
+            dy = 0;
+          } else {
+            this.storage.outOfSnap = true;
+          }
+
           var moved = processMove && processMove(dx, dy);
           scMatrix.e = dx + (moved && moved.x ? moved.x : 0);
           scMatrix.f = dy + (moved && moved.y ? moved.y : 0);

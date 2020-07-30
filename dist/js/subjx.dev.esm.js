@@ -888,8 +888,7 @@ class Transformable extends SubjectModel {
             restrict,
             draggable,
             resizable,
-            rotatable,
-            minStartDistance
+            rotatable
         } = options;
 
         if (doResize && resizable) {
@@ -987,14 +986,6 @@ class Transformable extends SubjectModel {
             let dy = doy
                 ? snapToGrid(clientY - ny, snap.y)
                 : 0;
-
-            // support for minimal initial movement
-            if(minStartDistance && Math.abs(clientX - nx) < minStartDistance && Math.abs(clientY - ny) < minStartDistance && !storage.outOfSnap) {
-                dx = 0;
-                dy = 0;
-            } else {
-                storage.outOfSnap = true;
-            }
 
             const args = {
                 dx,
@@ -3579,7 +3570,7 @@ class DraggableSVG extends Transformable {
         } = this.storage;
 
         const {
-            options: { processMove }
+            options: { processMove, minStartDistance }
         } = this;
 
 
@@ -3591,6 +3582,14 @@ class DraggableSVG extends Transformable {
             parentMatrix
         } = transform;
 
+
+        // support for minimal initial movement
+        if(!this.storage.outOfSnap && minStartDistance && Math.abs(dx) < minStartDistance && Math.abs(dy) < minStartDistance) {
+            dx = 0;
+            dy = 0;
+        } else {
+            this.storage.outOfSnap = true;
+        }
 
         const moved = processMove && processMove(dx, dy);
 

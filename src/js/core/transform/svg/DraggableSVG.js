@@ -588,7 +588,7 @@ export default class DraggableSVG extends Transformable {
         } = this.storage;
 
         const {
-            options: { processMove }
+            options: { processMove, minStartDistance }
         } = this;
 
 
@@ -600,6 +600,14 @@ export default class DraggableSVG extends Transformable {
             parentMatrix
         } = transform;
 
+
+        // support for minimal initial movement
+        if(!this.storage.outOfSnap && minStartDistance && Math.abs(dx) < minStartDistance && Math.abs(dy) < minStartDistance) {
+            dx = 0;
+            dy = 0;
+        } else {
+            this.storage.outOfSnap = true;
+        }
 
         const moved = processMove && processMove(dx, dy);
 
