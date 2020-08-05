@@ -288,7 +288,7 @@ export default class DraggableSVG extends Transformable {
         ctm.e = bounds.x;
         ctm.f = bounds.y;
 
-        return pointTo(ctm.inverse(), container, e.clientX, e.clientY);
+        return pointTo(ctm.inverse(), e.clientX, e.clientY);
     }
 
     _pointToElement({ x, y }) {

@@ -3108,17 +3108,22 @@
         }
       }, {
         key: "_cursorPoint",
-        value: function _cursorPoint(_ref3) {
-          var clientX = _ref3.clientX,
-              clientY = _ref3.clientY;
+        value: function _cursorPoint(e) {
           var container = this.options.container;
-          return pointTo(container.getScreenCTM().inverse(), clientX, clientY);
+          var bounds = container.getBoundingClientRect(),
+              ctm = container.getScreenCTM(); // Firefox workaround, their getScreenCTM behaves different
+
+          ctm.a = window.currentScale;
+          ctm.d = window.currentScale;
+          ctm.e = bounds.x;
+          ctm.f = bounds.y;
+          return pointTo(ctm.inverse(), e.clientX, e.clientY);
         }
       }, {
         key: "_pointToElement",
-        value: function _pointToElement(_ref4) {
-          var x = _ref4.x,
-              y = _ref4.y;
+        value: function _pointToElement(_ref3) {
+          var x = _ref3.x,
+              y = _ref3.y;
           var transform = this.storage.transform;
           var ctm = transform.ctm;
           var matrix = ctm.inverse();
@@ -3127,9 +3132,9 @@
         }
       }, {
         key: "_pointToControls",
-        value: function _pointToControls(_ref5) {
-          var x = _ref5.x,
-              y = _ref5.y;
+        value: function _pointToControls(_ref4) {
+          var x = _ref4.x,
+              y = _ref4.y;
           var transform = this.storage.transform;
           var boxCTM = transform.boxCTM;
           var matrix = boxCTM.inverse();
@@ -3410,11 +3415,11 @@
         }
       }, {
         key: "_getState",
-        value: function _getState(_ref6) {
-          var revX = _ref6.revX,
-              revY = _ref6.revY,
-              doW = _ref6.doW,
-              doH = _ref6.doH;
+        value: function _getState(_ref5) {
+          var revX = _ref5.revX,
+              revY = _ref5.revY,
+              doW = _ref5.doW,
+              doH = _ref5.doH;
           var element = this.el,
               storage = this.storage,
               container = this.options.container;
@@ -3465,9 +3470,9 @@
               bcy = _pointTo3.y; // element's center coordinates
 
 
-          var _ref7 = isDef(cHandle) ? pointTo(parentMatrix.inverse(), bcx, bcy) : pointTo(elMatrix, el_x + el_w / 2, el_y + el_h / 2),
-              elcx = _ref7.x,
-              elcy = _ref7.y; // box's center coordinates
+          var _ref6 = isDef(cHandle) ? pointTo(parentMatrix.inverse(), bcx, bcy) : pointTo(elMatrix, el_x + el_w / 2, el_y + el_h / 2),
+              elcx = _ref6.x,
+              elcy = _ref6.y; // box's center coordinates
 
 
           var _pointTo4 = pointTo(getTransformToElement(box, container), boxCenterX, boxCenterY),
@@ -3579,9 +3584,9 @@
       return DraggableSVG;
     }(Transformable);
 
-    var applyTranslate = function applyTranslate(element, _ref8) {
-      var x = _ref8.x,
-          y = _ref8.y;
+    var applyTranslate = function applyTranslate(element, _ref7) {
+      var x = _ref7.x,
+          y = _ref7.y;
       var attrs = [];
 
       switch (element.tagName.toLowerCase()) {
@@ -3791,10 +3796,10 @@
           }
       }
 
-      attrs.forEach(function (_ref9) {
-        var _ref10 = _slicedToArray(_ref9, 2),
-            key = _ref10[0],
-            value = _ref10[1];
+      attrs.forEach(function (_ref8) {
+        var _ref9 = _slicedToArray(_ref8, 2),
+            key = _ref9[0],
+            value = _ref9[1];
 
         element.setAttribute(key, value);
       });

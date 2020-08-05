@@ -3258,16 +3258,19 @@ class DraggableSVG extends Transformable {
         wrapper.parentNode.removeChild(wrapper);
     }
 
-    _cursorPoint({ clientX, clientY }) {
-        const {
-            container
-        } = this.options;
+    _cursorPoint(e) {
+        const {container} = this.options;
 
-        return pointTo(
-            container.getScreenCTM().inverse(),
-            clientX,
-            clientY
-        );
+        const bounds = container.getBoundingClientRect(),
+            ctm = container.getScreenCTM();
+
+        // Firefox workaround, their getScreenCTM behaves different
+        ctm.a = window.currentScale;
+        ctm.d = window.currentScale;
+        ctm.e = bounds.x;
+        ctm.f = bounds.y;
+
+        return pointTo(ctm.inverse(), e.clientX, e.clientY);
     }
 
     _pointToElement({ x, y }) {
