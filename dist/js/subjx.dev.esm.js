@@ -4361,8 +4361,13 @@ const applyTransformToHandles = (
         const hdl = handles[key];
         const attr = attrs[key];
         if (isUndef(attr) || isUndef(hdl)) return;
-        if (hdl.tagName === 'g') {
-            hdl.setAttribute('transform', `matrix(1, 0, 0, 1, ${attr.x}, ${attr.y})`);
+        if (hdl.tagName === 'g' || hdl.tagName === 'path') {
+            // this is dependant on svg.js since we need to keep the scale and rotation of those elements
+            if (hdl.instance && hdl.tagName === 'path') {
+                hdl.instance.transform({x: attr.x,y: attr.y});
+            } else {
+                hdl.setAttribute('transform', `matrix(1, 0, 0, 1, ${attr.x}, ${attr.y})`);
+            }
         } else {
             hdl.setAttribute('cx', attr.x);
             hdl.setAttribute('cy', attr.y);
