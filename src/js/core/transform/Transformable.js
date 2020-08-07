@@ -84,6 +84,7 @@ export default class Transformable extends SubjectModel {
             _minSize = 5,
             _allowReversing = true,
             _processMove = false,
+            _processResize = false,
             _minStartDistance = false,
             _cursorMove = 'auto',
             _cursorResize = 'auto',
@@ -134,7 +135,8 @@ export default class Transformable extends SubjectModel {
                 minSize,
                 allowReversing,
                 minStartDistance,
-                processMove
+                processMove,
+                processResize
             } = options;
 
             if (isDef(snap)) {
@@ -177,6 +179,7 @@ export default class Transformable extends SubjectModel {
             _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
+            _processResize = processResize || false;
 
             _draggable = isDef(draggable) ? draggable : true;
             _resizable = isDef(resizable) ? resizable : true;
@@ -217,7 +220,8 @@ export default class Transformable extends SubjectModel {
             minSize: _minSize,
             allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
-            processMove: _processMove
+            processMove: _processMove,
+            processResize: _processResize
         };
 
         this.proxyMethods = {

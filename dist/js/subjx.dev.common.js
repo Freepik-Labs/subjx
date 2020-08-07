@@ -704,6 +704,7 @@ class Transformable extends SubjectModel {
             _minSize = 5,
             _allowReversing = true,
             _processMove = false,
+            _processResize = false,
             _minStartDistance = false,
             _cursorMove = 'auto',
             _cursorResize = 'auto',
@@ -754,7 +755,8 @@ class Transformable extends SubjectModel {
                 minSize,
                 allowReversing,
                 minStartDistance,
-                processMove
+                processMove,
+                processResize
             } = options;
 
             if (isDef(snap)) {
@@ -797,6 +799,7 @@ class Transformable extends SubjectModel {
             _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
+            _processResize = processResize || false;
 
             _draggable = isDef(draggable) ? draggable : true;
             _resizable = isDef(resizable) ? resizable : true;
@@ -837,7 +840,8 @@ class Transformable extends SubjectModel {
             minSize: _minSize,
             allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
-            processMove: _processMove
+            processMove: _processMove,
+            processResize: _processResize
         };
 
         this.proxyMethods = {
@@ -3445,7 +3449,7 @@ class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions, withoutScaling, minSize, allowReversing }
+            options: { proportions, processResize, withoutScaling, minSize, allowReversing }
         } = this;
 
         const {
@@ -3472,6 +3476,13 @@ class DraggableSVG extends Transformable {
             width: newWidth,
             height: newHeight
         } = el.getBBox();
+
+        if (processResize) {
+            const resized = processResize(dx, dy, revX, revY);
+
+            dx += resized && resized.x ? resized.x : 0;
+            dy += resized && resized.y ? resized.y : 0;
+        }
 
         const ratio = doW || (!doW && !doH)
             ? (cw + dx) / cw

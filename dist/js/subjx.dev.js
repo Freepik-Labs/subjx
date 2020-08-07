@@ -985,6 +985,7 @@
               _minSize = 5,
               _allowReversing = true,
               _processMove = false,
+              _processResize = false,
               _minStartDistance = false,
               _cursorMove = 'auto',
               _cursorResize = 'auto',
@@ -1034,7 +1035,8 @@
                 minSize = options.minSize,
                 allowReversing = options.allowReversing,
                 minStartDistance = options.minStartDistance,
-                processMove = options.processMove;
+                processMove = options.processMove,
+                processResize = options.processResize;
 
             if (isDef(snap)) {
               var x = snap.x,
@@ -1070,6 +1072,7 @@
             _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
+            _processResize = processResize || false;
             _draggable = isDef(draggable) ? draggable : true;
             _resizable = isDef(resizable) ? resizable : true;
             _rotatable = isDef(rotatable) ? rotatable : true;
@@ -1107,7 +1110,8 @@
             minSize: _minSize,
             allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
-            processMove: _processMove
+            processMove: _processMove,
+            processResize: _processResize
           };
           this.proxyMethods = {
             onInit: _onInit,
@@ -3234,6 +3238,7 @@
               options = this.options,
               _this$options2 = this.options,
               proportions = _this$options2.proportions,
+              processResize = _this$options2.processResize,
               withoutScaling = _this$options2.withoutScaling,
               minSize = _this$options2.minSize,
               allowReversing = _this$options2.allowReversing;
@@ -3255,6 +3260,12 @@
           var _el$getBBox2 = el.getBBox(),
               newWidth = _el$getBBox2.width,
               newHeight = _el$getBBox2.height;
+
+          if (processResize) {
+            var resized = processResize(dx, dy, revX, revY);
+            dx += resized && resized.x ? resized.x : 0;
+            dy += resized && resized.y ? resized.y : 0;
+          }
 
           var ratio = doW || !doW && !doH ? (cw + dx) / cw : (ch + dy) / ch;
           newWidth = proportions ? cw * ratio : cw + dx;

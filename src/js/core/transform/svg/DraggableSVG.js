@@ -461,7 +461,7 @@ export default class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions, withoutScaling, minSize, allowReversing }
+            options: { proportions, processResize, withoutScaling, minSize, allowReversing }
         } = this;
 
         const {
@@ -488,6 +488,13 @@ export default class DraggableSVG extends Transformable {
             width: newWidth,
             height: newHeight
         } = el.getBBox();
+
+        if (processResize) {
+            const resized = processResize(dx, dy, revX, revY);
+
+            dx += resized && resized.x ? resized.x : 0;
+            dy += resized && resized.y ? resized.y : 0;
+        }
 
         const ratio = doW || (!doW && !doH)
             ? (cw + dx) / cw
