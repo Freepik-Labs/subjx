@@ -3385,10 +3385,13 @@
           var moved = processMove && processMove(x, y);
 
           if (moved) {
-            var altered = rotateCoordinates(moved.x, moved.y, 0, 0, moved.rotation);
-            moveWrapperMtrx.e += altered.x;
-            moveWrapperMtrx.f += altered.y;
-            wrapper.setAttribute('transform', matrixToString(moveWrapperMtrx));
+            if (moved.rotation) {
+              var altered = rotateCoordinates(moved.x || 0, moved.y || 0, 0, 0, moved.rotation);
+              moveWrapperMtrx.e += altered.x;
+              moveWrapperMtrx.f += altered.y;
+              wrapper.setAttribute('transform', matrixToString(moveWrapperMtrx));
+            }
+
             trMatrix.e += moved.x || 0;
             trMatrix.f += moved.y || 0;
           }

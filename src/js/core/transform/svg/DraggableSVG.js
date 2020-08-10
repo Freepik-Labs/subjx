@@ -642,15 +642,17 @@ export default class DraggableSVG extends Transformable {
         let moved = processMove && processMove(x, y);
 
         if(moved) {
-            const altered = rotateCoordinates(moved.x, moved.y,0,0, moved.rotation);
+            if(moved.rotation) {
+                const altered = rotateCoordinates(moved.x || 0, moved.y || 0,0,0, moved.rotation);
 
-            moveWrapperMtrx.e += altered.x;
-            moveWrapperMtrx.f += altered.y;
+                moveWrapperMtrx.e += altered.x;
+                moveWrapperMtrx.f += altered.y;
 
-            wrapper.setAttribute(
-                'transform',
-                matrixToString(moveWrapperMtrx)
-            );
+                wrapper.setAttribute(
+                    'transform',
+                    matrixToString(moveWrapperMtrx)
+                );
+            }
 
             trMatrix.e += moved.x || 0;
             trMatrix.f += moved.y || 0;
