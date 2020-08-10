@@ -1,6 +1,6 @@
 import { helper } from '../../Helper';
 import Transformable from '../Transformable';
-import { isDef, isUndef, isFunc } from '../../util/util';
+import {isDef, isUndef, isFunc, rotateCoordinates} from '../../util/util';
 import { floatToFixed } from '../common';
 import { movePath, resizePath } from './path';
 import { addClass } from '../../util/css-util';
@@ -619,10 +619,8 @@ export default class DraggableSVG extends Transformable {
             this.storage.outOfSnap = true;
         }
 
-        const moved = processMove && processMove(dx, dy);
-
-        scMatrix.e = dx + (moved && moved.x ? moved.x : 0);
-        scMatrix.f = dy + (moved && moved.y ? moved.y : 0);
+        scMatrix.e = dx;
+        scMatrix.f = dy;
 
         const moveWrapperMtrx = scMatrix.multiply(wrapperMatrix);
 
@@ -638,8 +636,25 @@ export default class DraggableSVG extends Transformable {
             dy
         );
 
-        trMatrix.e = x + (moved && moved.x ? moved.x : 0);
-        trMatrix.f = y + (moved && moved.y ? moved.y : 0);
+        trMatrix.e = x;
+        trMatrix.f = y;
+
+        let moved = processMove && processMove(x, y);
+
+        if(moved) {
+            const altered = rotateCoordinates(moved.x, moved.y,0,0, moved.rotation);
+
+            moveWrapperMtrx.e += altered.x;
+            moveWrapperMtrx.f += altered.y;
+
+            wrapper.setAttribute(
+                'transform',
+                matrixToString(moveWrapperMtrx)
+            );
+
+            trMatrix.e += moved.x || 0;
+            trMatrix.f += moved.y || 0;
+        }
 
         const moveElementMtrx = trMatrix.multiply(matrix);
 

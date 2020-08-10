@@ -309,6 +309,20 @@
         fn.call.apply(fn, [this].concat(Array.prototype.slice.call(arguments)));
       } : function () {};
     };
+    var rotateCoordinates = function rotateCoordinates(x, y, xm, ym, a) {
+      var cos = Math.cos,
+          sin = Math.sin;
+      a = a * Math.PI / 180; // Convert to radians
+      // Subtract midpoints, so that midpoint is translated to origin
+      // and add it in the end again
+
+      var xr = (x - xm) * cos(a) - (y - ym) * sin(a) + xm,
+          yr = (x - xm) * sin(a) + (y - ym) * cos(a) + ym;
+      return {
+        x: xr,
+        y: yr
+      };
+    };
 
     var Helper = /*#__PURE__*/function () {
       function Helper(params) {
@@ -3356,9 +3370,8 @@
             this.storage.outOfSnap = true;
           }
 
-          var moved = processMove && processMove(dx, dy);
-          scMatrix.e = dx + (moved && moved.x ? moved.x : 0);
-          scMatrix.f = dy + (moved && moved.y ? moved.y : 0);
+          scMatrix.e = dx;
+          scMatrix.f = dy;
           var moveWrapperMtrx = scMatrix.multiply(wrapperMatrix);
           wrapper.setAttribute('transform', matrixToString(moveWrapperMtrx));
           parentMatrix.e = parentMatrix.f = 0;
@@ -3367,8 +3380,19 @@
               x = _pointTo.x,
               y = _pointTo.y;
 
-          trMatrix.e = x + (moved && moved.x ? moved.x : 0);
-          trMatrix.f = y + (moved && moved.y ? moved.y : 0);
+          trMatrix.e = x;
+          trMatrix.f = y;
+          var moved = processMove && processMove(x, y);
+
+          if (moved) {
+            var altered = rotateCoordinates(moved.x, moved.y, 0, 0, moved.rotation);
+            moveWrapperMtrx.e += altered.x;
+            moveWrapperMtrx.f += altered.y;
+            wrapper.setAttribute('transform', matrixToString(moveWrapperMtrx));
+            trMatrix.e += moved.x || 0;
+            trMatrix.f += moved.y || 0;
+          }
+
           var moveElementMtrx = trMatrix.multiply(matrix);
           this.el.setAttribute('transform', matrixToString(moveElementMtrx));
           this.storage.cached = {

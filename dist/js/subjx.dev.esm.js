@@ -50,6 +50,17 @@ const createMethod = (fn) => {
         : () => { };
 };
 
+const rotateCoordinates = function(x, y, xm, ym, a) {
+    let cos = Math.cos, sin = Math.sin;
+    a = a * Math.PI / 180; // Convert to radians
+    // Subtract midpoints, so that midpoint is translated to origin
+    // and add it in the end again
+    let xr = (x - xm) * cos(a) - (y - ym) * sin(a) + xm,
+        yr = (x - xm) * sin(a) + (y - ym) * cos(a) + ym;
+
+    return {x: xr, y: yr};
+};
+
 class Helper {
 
     constructor(params) {
@@ -3605,10 +3616,8 @@ class DraggableSVG extends Transformable {
             this.storage.outOfSnap = true;
         }
 
-        const moved = processMove && processMove(dx, dy);
-
-        scMatrix.e = dx + (moved && moved.x ? moved.x : 0);
-        scMatrix.f = dy + (moved && moved.y ? moved.y : 0);
+        scMatrix.e = dx;
+        scMatrix.f = dy;
 
         const moveWrapperMtrx = scMatrix.multiply(wrapperMatrix);
 
@@ -3624,8 +3633,25 @@ class DraggableSVG extends Transformable {
             dy
         );
 
-        trMatrix.e = x + (moved && moved.x ? moved.x : 0);
-        trMatrix.f = y + (moved && moved.y ? moved.y : 0);
+        trMatrix.e = x;
+        trMatrix.f = y;
+
+        let moved = processMove && processMove(x, y);
+
+        if(moved) {
+            const altered = rotateCoordinates(moved.x, moved.y,0,0, moved.rotation);
+
+            moveWrapperMtrx.e += altered.x;
+            moveWrapperMtrx.f += altered.y;
+
+            wrapper.setAttribute(
+                'transform',
+                matrixToString(moveWrapperMtrx)
+            );
+
+            trMatrix.e += moved.x || 0;
+            trMatrix.f += moved.y || 0;
+        }
 
         const moveElementMtrx = trMatrix.multiply(matrix);
 
