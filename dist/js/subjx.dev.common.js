@@ -2452,7 +2452,7 @@ const isGroup = (element) => {
 };
 
 const shouldKeepTransformations = (element) => {
-    return ['g', 'foreignobject', 'svg'].includes(element.tagName.toLowerCase());
+    return ['g', 'foreignobject', 'svg', 'rect'].includes(element.tagName.toLowerCase());
 };
 
 const parsePoints = (pts) => {
