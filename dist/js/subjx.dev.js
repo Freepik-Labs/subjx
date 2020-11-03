@@ -194,11 +194,13 @@
     }
 
     function _createSuper(Derived) {
-      return function () {
+      var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+      return function _createSuperInternal() {
         var Super = _getPrototypeOf(Derived),
             result;
 
-        if (_isNativeReflectConstruct()) {
+        if (hasNativeReflectConstruct) {
           var NewTarget = _getPrototypeOf(this).constructor;
 
           result = Reflect.construct(Super, arguments, NewTarget);
@@ -262,7 +264,7 @@
       if (typeof o === "string") return _arrayLikeToArray(o, minLen);
       var n = Object.prototype.toString.call(o).slice(8, -1);
       if (n === "Object" && o.constructor) n = o.constructor.name;
-      if (n === "Map" || n === "Set") return Array.from(n);
+      if (n === "Map" || n === "Set") return Array.from(o);
       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
     }
 
@@ -967,7 +969,7 @@
 
           var finalValues = this._processResize(dx, dy);
 
-          var finalArgs = _objectSpread2({}, finalValues, {
+          var finalArgs = _objectSpread2(_objectSpread2({}, finalValues), {}, {
             dx: dx,
             dy: dy
           }, rest);
@@ -1370,7 +1372,7 @@
             dox: /\x/.test(axis) && (doResize ? handle.is(handles.ml) || handle.is(handles.mr) || handle.is(handles.tl) || handle.is(handles.tr) || handle.is(handles.bl) || handle.is(handles.br) : true),
             doy: /\y/.test(axis) && (doResize ? handle.is(handles.br) || handle.is(handles.bl) || handle.is(handles.bc) || handle.is(handles.tr) || handle.is(handles.tl) || handle.is(handles.tc) : true)
           };
-          this.storage = _objectSpread2({}, storage, {}, newStorageValues);
+          this.storage = _objectSpread2(_objectSpread2({}, storage), newStorageValues);
           var eventArgs = {
             clientX: clientX,
             clientY: clientY
@@ -1523,7 +1525,7 @@
               clientY = _this$_cursorPoint3.y;
 
           var pressang = Math.atan2(clientY - _computed.center.y, clientX - _computed.center.x);
-          return _objectSpread2({}, _computed, {}, rest, {
+          return _objectSpread2(_objectSpread2(_objectSpread2({}, _computed), rest), {}, {
             handle: handle,
             pressang: pressang
           });
@@ -1622,7 +1624,7 @@
           if (triggerEvent) {
             var recalc = this._getState(rest);
 
-            this.storage = _objectSpread2({}, this.storage, {}, recalc);
+            this.storage = _objectSpread2(_objectSpread2({}, this.storage), recalc);
 
             this._emitEvent("".concat(actionName, "Start"), {
               clientX: clientX,
@@ -1692,7 +1694,7 @@
               dy = _ref8.dy;
           var draggable = this.options.draggable;
           if (!draggable) return;
-          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
+          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
             revX: false,
             revY: false,
             doW: false,
@@ -1717,7 +1719,7 @@
               doH = _ref9.doH;
           var resizable = this.options.resizable;
           if (!resizable) return;
-          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
+          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
             revX: revX || false,
             revY: revY || false,
             doW: doW || false,
@@ -1737,7 +1739,7 @@
           var delta = _ref10.delta;
           var rotatable = this.options.rotatable;
           if (!rotatable) return;
-          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
+          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
             revX: false,
             revY: false,
             doW: false,
@@ -2002,7 +2004,7 @@
             rotator: ['sjx-hdl', 'sjx-hdl-m', 'sjx-rotator']
           };
 
-          var handles = _objectSpread2({}, rotatable && rotationHandles, {}, resizable && resizingHandles, {
+          var handles = _objectSpread2(_objectSpread2(_objectSpread2({}, rotatable && rotationHandles), resizable && resizingHandles), {}, {
             center: rotationPoint && rotatable ? ['sjx-hdl', 'sjx-hdl-m', 'sjx-hdl-c', 'sjx-hdl-mc'] : undefined
           });
 
@@ -2405,7 +2407,11 @@
       return element.tagName.toLowerCase() === 'g';
     };
     var shouldKeepTransformations = function shouldKeepTransformations(element) {
+<<<<<<< HEAD
       return ['g', 'svg'].includes(element.tagName.toLowerCase());
+=======
+      return ['g', 'foreignobject', 'svg', 'rect'].includes(element.tagName.toLowerCase());
+>>>>>>> a93655a9fb5e9b85625bd1db473f55c3f37d0109
     };
     var parsePoints = function parsePoints(pts) {
       return pts.match(floatRE).reduce(function (result, value, index, array) {
@@ -3059,7 +3065,7 @@
             };
           }
 
-          var handles = _objectSpread2({}, resizable && resizingHandles, {
+          var handles = _objectSpread2(_objectSpread2({}, resizable && resizingHandles), {}, {
             rotator: rotator,
             center: rotationPoint && rotatable ? createPoint(container, centerX, centerY) || boxCenter : undefined
           });
@@ -3082,7 +3088,7 @@
           this.storage = {
             wrapper: wrapper,
             box: box,
-            handles: _objectSpread2({}, handles, {}, rotationHandles),
+            handles: _objectSpread2(_objectSpread2({}, handles), rotationHandles),
             parent: el.parentNode
           };
           helper(wrapper).on('mousedown', this._onMouseDown).on('touchstart', this._onTouchStart);
@@ -3342,7 +3348,7 @@
             width: newWidth,
             height: newHeight
           };
-          applyTransformToHandles(storage, options, _objectSpread2({}, finalValues, {
+          applyTransformToHandles(storage, options, _objectSpread2(_objectSpread2({}, finalValues), {}, {
             boxMatrix: null
           }));
           return finalValues;
