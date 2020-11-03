@@ -2405,7 +2405,7 @@
       return element.tagName.toLowerCase() === 'g';
     };
     var shouldKeepTransformations = function shouldKeepTransformations(element) {
-      return ['g', 'foreignobject', 'svg'].includes(element.tagName.toLowerCase());
+      return ['g', 'svg'].includes(element.tagName.toLowerCase());
     };
     var parsePoints = function parsePoints(pts) {
       return pts.match(floatRE).reduce(function (result, value, index, array) {
@@ -3755,6 +3755,7 @@
             attrs.push(['x', _resX4 - (scaleX < 0 ? newWidth : 0)], ['y', _resY4 - (scaleY < 0 ? newHeight : 0)]);
 
             if (!withoutScaling) {
+              element.dataset.scale = scaleX;
               attrs.push(['width', newWidth], ['height', newHeight]);
             }
 

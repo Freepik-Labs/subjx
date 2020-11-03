@@ -2452,7 +2452,7 @@ const isGroup = (element) => {
 };
 
 const shouldKeepTransformations = (element) => {
-    return ['g', 'foreignobject', 'svg'].includes(element.tagName.toLowerCase());
+    return ['g','svg'].includes(element.tagName.toLowerCase());
 };
 
 const parsePoints = (pts) => {
@@ -4137,11 +4137,13 @@ const applyResize = (element, data) => {
             );
 
             if (!withoutScaling) {
+                element.dataset.scale = scaleX;
                 attrs.push(
                     ['width', newWidth],
                     ['height', newHeight]
                 );
             }
+
             break;
         }
         case 'ellipse': {
