@@ -2239,7 +2239,7 @@
             scY: Math.sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3])
           };
           var cw = parseFloat($controls.css('width')),
-              ch = parseFloat($controls.css('height')); // getting current coordinates considering rotation angle                                                                                                  
+              ch = parseFloat($controls.css('height')); // getting current coordinates considering rotation angle
 
           var coords = rotatedTopLeft(matrix[4], matrix[5], cw, ch, refang, revX, revY, doW, doH);
           var hW = cw / 2,
@@ -2407,11 +2407,7 @@
       return element.tagName.toLowerCase() === 'g';
     };
     var shouldKeepTransformations = function shouldKeepTransformations(element) {
-<<<<<<< HEAD
-      return ['g', 'svg'].includes(element.tagName.toLowerCase());
-=======
-      return ['g', 'foreignobject', 'svg', 'rect'].includes(element.tagName.toLowerCase());
->>>>>>> a93655a9fb5e9b85625bd1db473f55c3f37d0109
+      return ['g', 'svg', 'rect'].includes(element.tagName.toLowerCase());
     };
     var parsePoints = function parsePoints(pts) {
       return pts.match(floatRE).reduce(function (result, value, index, array) {
@@ -3874,10 +3870,10 @@
         ml: pointTo(boxCTM, x, y + hH),
         mr: pointTo(boxCTM, x + width, y + hH),
         center: isDef(handles.center) && !center.isShifted ? boxCenter : undefined
-      }; // if (forced) { 
+      }; // if (forced) {
       //     attrs.center = pointTo(
-      //         boxCTM, 
-      //         center.x, 
+      //         boxCTM,
+      //         center.x,
       //         center.y
       //     );
       //     console.log(attrs.center);
