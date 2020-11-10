@@ -3599,6 +3599,8 @@
               x = _el$getBBox3.x,
               y = _el$getBBox3.y;
 
+          this.storage.ch = height; // this.storage.cw = width;
+
           var containerMatrix = getTransformToElement(el, container);
           wrapper.removeAttribute('transform');
           box.setAttribute('transform', matrixToString(containerMatrix));

@@ -3579,7 +3579,6 @@ class DraggableSVG extends Transformable {
             height: newHeight
         };
 
-
         applyTransformToHandles(
             storage,
             options,
@@ -3924,6 +3923,9 @@ class DraggableSVG extends Transformable {
             x,
             y
         } = el.getBBox();
+
+        this.storage.ch = height;
+        // this.storage.cw = width;
 
         const containerMatrix = getTransformToElement(
             el,
