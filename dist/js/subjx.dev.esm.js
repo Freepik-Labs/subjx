@@ -2450,7 +2450,7 @@ const isGroup = (element) => {
 };
 
 const shouldKeepTransformations = (element) => {
-    return ['g','svg', 'rect'].includes(element.tagName.toLowerCase());
+    return ['g','svg', 'rect', 'foreignobject'].includes(element.tagName.toLowerCase());
 };
 
 const parsePoints = (pts) => {
@@ -3492,6 +3492,7 @@ class DraggableSVG extends Transformable {
             dx += resized && resized.x ? resized.x : 0;
             dy += resized && resized.y ? resized.y : 0;
         }
+
 
         const ratio = doW || (!doW && !doH)
             ? (cw + dx) / cw

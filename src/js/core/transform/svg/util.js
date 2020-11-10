@@ -116,7 +116,7 @@ export const isGroup = (element) => {
 };
 
 export const shouldKeepTransformations = (element) => {
-    return ['g','svg', 'rect'].includes(element.tagName.toLowerCase());
+    return ['g','svg', 'rect', 'foreignobject'].includes(element.tagName.toLowerCase());
 };
 
 export const parsePoints = (pts) => {

@@ -2405,7 +2405,7 @@
       return element.tagName.toLowerCase() === 'g';
     };
     var shouldKeepTransformations = function shouldKeepTransformations(element) {
-      return ['g', 'svg', 'rect'].includes(element.tagName.toLowerCase());
+      return ['g', 'svg', 'rect', 'foreignobject'].includes(element.tagName.toLowerCase());
     };
     var parsePoints = function parsePoints(pts) {
       return pts.match(floatRE).reduce(function (result, value, index, array) {

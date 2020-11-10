@@ -496,6 +496,7 @@ export default class DraggableSVG extends Transformable {
             dy += resized && resized.y ? resized.y : 0;
         }
 
+
         const ratio = doW || (!doW && !doH)
             ? (cw + dx) / cw
             : (ch + dy) / ch;
