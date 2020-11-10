@@ -3281,7 +3281,8 @@
             dy += resized && resized.y ? resized.y : 0;
           }
 
-          var ratio = doW || !doW && !doH ? (cw + dx) / cw : (ch + dy) / ch;
+          var initialScale = matrix.d;
+          var ratio = doW || !doW && !doH ? (cw + dx * initialScale) / cw : (ch + dy) / ch;
           newWidth = proportions ? cw * ratio : cw + dx;
           newHeight = proportions ? ch * ratio : ch + dy;
           if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;

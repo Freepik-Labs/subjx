@@ -497,8 +497,10 @@ export default class DraggableSVG extends Transformable {
         }
 
 
+        const initialScale = matrix.d;
+
         const ratio = doW || (!doW && !doH)
-            ? (cw + dx) / cw
+            ? (cw + dx * initialScale) / cw
             : (ch + dy) / ch;
 
         newWidth = proportions ? cw * ratio : cw + dx;
