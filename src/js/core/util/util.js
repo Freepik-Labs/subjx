@@ -54,3 +54,28 @@ export const rotateCoordinates = function(x, y, xm, ym, a) {
 
     return {x: xr, y: yr};
 };
+
+export function decomposeMatrix(m) {
+    const E = (m.a + m.d) / 2;
+    const F = (m.a - m.d) / 2;
+    const G = (m.c + m.b) / 2;
+    const H = (m.c - m.b) / 2;
+
+    const Q = Math.sqrt(E * E + H * H);
+    const R = Math.sqrt(F * F + G * G);
+    const a1 = Math.atan2(G, F);
+    const a2 = Math.atan2(H, E);
+    const theta = (a2 - a1) / 2;
+    const phi = (a2 + a1) / 2;
+
+    // The requested parameters are then theta,
+    // sx, sy, phi,
+    return {
+        translateX: m.e,
+        translateY: m.f,
+        rotate: -phi * 180 / Math.PI,
+        scaleX: Q + R,
+        scaleY: Q - R,
+        skew: -theta * 180 / Math.PI
+    };
+}

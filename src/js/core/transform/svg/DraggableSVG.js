@@ -496,11 +496,8 @@ export default class DraggableSVG extends Transformable {
             dy += resized && resized.y ? resized.y : 0;
         }
 
-
-        const initialScale = matrix.d;
-
-        const ratio = doW || (!doW && !doH)
-            ? (cw + dx * initialScale) / cw
+        let ratio = doW || (!doW && !doH)
+            ? (cw + dx) / cw
             : (ch + dy) / ch;
 
         newWidth = proportions ? cw * ratio : cw + dx;
@@ -926,7 +923,6 @@ export default class DraggableSVG extends Transformable {
         } = el.getBBox();
 
         this.storage.ch = height;
-        // this.storage.cw = width;
 
         const containerMatrix = getTransformToElement(
             el,

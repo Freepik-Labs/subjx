@@ -3281,8 +3281,7 @@
             dy += resized && resized.y ? resized.y : 0;
           }
 
-          var initialScale = matrix.d;
-          var ratio = doW || !doW && !doH ? (cw + dx * initialScale) / cw : (ch + dy) / ch;
+          var ratio = doW || !doW && !doH ? (cw + dx) / cw : (ch + dy) / ch;
           newWidth = proportions ? cw * ratio : cw + dx;
           newHeight = proportions ? ch * ratio : ch + dy;
           if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
@@ -3599,8 +3598,7 @@
               x = _el$getBBox3.x,
               y = _el$getBBox3.y;
 
-          this.storage.ch = height; // this.storage.cw = width;
-
+          this.storage.ch = height;
           var containerMatrix = getTransformToElement(el, container);
           wrapper.removeAttribute('transform');
           box.setAttribute('transform', matrixToString(containerMatrix));
