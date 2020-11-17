@@ -282,9 +282,6 @@ export default class DraggableSVG extends Transformable {
         const bounds = container.getBoundingClientRect(),
             ctm = container.getScreenCTM();
 
-        // Firefox workaround, their getScreenCTM behaves different
-        ctm.a = 1;
-        ctm.d = 1;
         ctm.e = bounds.x;
         ctm.f = bounds.y;
 
