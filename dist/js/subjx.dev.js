@@ -194,11 +194,13 @@
     }
 
     function _createSuper(Derived) {
-      return function () {
+      var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+      return function _createSuperInternal() {
         var Super = _getPrototypeOf(Derived),
             result;
 
-        if (_isNativeReflectConstruct()) {
+        if (hasNativeReflectConstruct) {
           var NewTarget = _getPrototypeOf(this).constructor;
 
           result = Reflect.construct(Super, arguments, NewTarget);
@@ -262,7 +264,7 @@
       if (typeof o === "string") return _arrayLikeToArray(o, minLen);
       var n = Object.prototype.toString.call(o).slice(8, -1);
       if (n === "Object" && o.constructor) n = o.constructor.name;
-      if (n === "Map" || n === "Set") return Array.from(n);
+      if (n === "Map" || n === "Set") return Array.from(o);
       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
     }
 
@@ -910,6 +912,102 @@
       };
     };
 
+    var svgPoint = createSVGElement('svg').createSVGPoint();
+    var floatRE = /[+-]?\d+(\.\d+)?/g;
+    var ALLOWED_ELEMENTS = ['circle', 'ellipse', 'image', 'line', 'path', 'polygon', 'polyline', 'rect', 'text', 'g', 'foreignobject'];
+    function createSVGElement(name) {
+      return document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+    var checkChildElements = function checkChildElements(element) {
+      var arrOfElements = [];
+
+      if (isGroup(element)) {
+        forEach.call(element.childNodes, function (item) {
+          if (item.nodeType === 1) {
+            var tagName = item.tagName.toLowerCase();
+
+            if (ALLOWED_ELEMENTS.indexOf(tagName) !== -1) {
+              if (tagName === 'g') {
+                arrOfElements.push.apply(arrOfElements, _toConsumableArray(checkChildElements(item)));
+              }
+
+              arrOfElements.push(item);
+            }
+          }
+        });
+      } else {
+        arrOfElements.push(element);
+      }
+
+      return arrOfElements;
+    };
+    var createSVGMatrix = function createSVGMatrix() {
+      return createSVGElement('svg').createSVGMatrix();
+    };
+    var getTransformToElement = function getTransformToElement(toElement, g) {
+      var gTransform = g.getScreenCTM() || createSVGMatrix();
+      return gTransform.inverse().multiply(toElement.getScreenCTM() || createSVGMatrix());
+    };
+    var matrixToString = function matrixToString(m) {
+      var a = m.a,
+          b = m.b,
+          c = m.c,
+          d = m.d,
+          e = m.e,
+          f = m.f;
+      return "matrix(".concat(a, ",").concat(b, ",").concat(c, ",").concat(d, ",").concat(e, ",").concat(f, ")");
+    };
+    var pointTo = function pointTo(ctm, x, y) {
+      svgPoint.x = x;
+      svgPoint.y = y;
+      return svgPoint.matrixTransform(ctm);
+    };
+    var cloneMatrix = function cloneMatrix(b) {
+      var a = createSVGMatrix();
+      a.a = b.a;
+      a.b = b.b;
+      a.c = b.c;
+      a.d = b.d;
+      a.e = b.e;
+      a.f = b.f;
+      return a;
+    };
+    var checkElement = function checkElement(el) {
+      var tagName = el.tagName.toLowerCase();
+
+      if (ALLOWED_ELEMENTS.indexOf(tagName) === -1) {
+        warn('Selected element ' + tagName + ' is not allowed to transform. Allowed elements:\n' + 'circle, ellipse, image, line, path, polygon, polyline, rect, text, g, foreignObject');
+        return false;
+      } else {
+        return true;
+      }
+    };
+    var createPoint = function createPoint(svg, x, y) {
+      if (isUndef(x) || isUndef(y)) {
+        return null;
+      }
+
+      var pt = svg.createSVGPoint();
+      pt.x = x;
+      pt.y = y;
+      return pt;
+    };
+    var isGroup = function isGroup(element) {
+      return element.tagName.toLowerCase() === 'g';
+    };
+    var shouldKeepTransformations = function shouldKeepTransformations(element) {
+      return ['g', 'svg', 'rect', 'foreignobject'].includes(element.tagName.toLowerCase());
+    };
+    var parsePoints = function parsePoints(pts) {
+      return pts.match(floatRE).reduce(function (result, value, index, array) {
+        if (index % 2 === 0) {
+          result.push(array.slice(index, index + 2));
+        }
+
+        return result;
+      }, []);
+    };
+
     var Transformable = /*#__PURE__*/function (_SubjectModel) {
       _inherits(Transformable, _SubjectModel);
 
@@ -967,7 +1065,7 @@
 
           var finalValues = this._processResize(dx, dy);
 
-          var finalArgs = _objectSpread2({}, finalValues, {
+          var finalArgs = _objectSpread2(_objectSpread2({}, finalValues), {}, {
             dx: dx,
             dy: dy
           }, rest);
@@ -994,6 +1092,7 @@
 
           var _restrict = null,
               _proportions = false,
+              _keepTransformations = false,
               _axis = 'xy',
               _withoutScaling = false,
               _minSize = 5,
@@ -1041,6 +1140,7 @@
                 onDestroy = options.onDestroy,
                 container = options.container,
                 proportions = options.proportions,
+                keepTransformations = options.keepTransformations,
                 custom = options.custom,
                 rotatorAnchor = options.rotatorAnchor,
                 rotatorOffset = options.rotatorOffset,
@@ -1081,6 +1181,7 @@
             _container = isDef(container) && helper(container)[0] ? helper(container)[0] : _container;
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
+            _keepTransformations = typeof keepTransformations === "boolean" ? keepTransformations : shouldKeepTransformations(el);
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
             _allowReversing = allowReversing || true;
@@ -1113,6 +1214,7 @@
             snap: _snap,
             each: _each,
             proportions: _proportions,
+            keepTransformations: _keepTransformations,
             draggable: _draggable,
             resizable: _resizable,
             rotatable: _rotatable,
@@ -1370,7 +1472,7 @@
             dox: /\x/.test(axis) && (doResize ? handle.is(handles.ml) || handle.is(handles.mr) || handle.is(handles.tl) || handle.is(handles.tr) || handle.is(handles.bl) || handle.is(handles.br) : true),
             doy: /\y/.test(axis) && (doResize ? handle.is(handles.br) || handle.is(handles.bl) || handle.is(handles.bc) || handle.is(handles.tr) || handle.is(handles.tl) || handle.is(handles.tc) : true)
           };
-          this.storage = _objectSpread2({}, storage, {}, newStorageValues);
+          this.storage = _objectSpread2(_objectSpread2({}, storage), newStorageValues);
           var eventArgs = {
             clientX: clientX,
             clientY: clientY
@@ -1523,7 +1625,7 @@
               clientY = _this$_cursorPoint3.y;
 
           var pressang = Math.atan2(clientY - _computed.center.y, clientX - _computed.center.x);
-          return _objectSpread2({}, _computed, {}, rest, {
+          return _objectSpread2(_objectSpread2(_objectSpread2({}, _computed), rest), {}, {
             handle: handle,
             pressang: pressang
           });
@@ -1622,7 +1724,7 @@
           if (triggerEvent) {
             var recalc = this._getState(rest);
 
-            this.storage = _objectSpread2({}, this.storage, {}, recalc);
+            this.storage = _objectSpread2(_objectSpread2({}, this.storage), recalc);
 
             this._emitEvent("".concat(actionName, "Start"), {
               clientX: clientX,
@@ -1692,7 +1794,7 @@
               dy = _ref8.dy;
           var draggable = this.options.draggable;
           if (!draggable) return;
-          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
+          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
             revX: false,
             revY: false,
             doW: false,
@@ -1717,7 +1819,7 @@
               doH = _ref9.doH;
           var resizable = this.options.resizable;
           if (!resizable) return;
-          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
+          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
             revX: revX || false,
             revY: revY || false,
             doW: doW || false,
@@ -1737,7 +1839,7 @@
           var delta = _ref10.delta;
           var rotatable = this.options.rotatable;
           if (!rotatable) return;
-          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
+          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
             revX: false,
             revY: false,
             doW: false,
@@ -2002,7 +2104,7 @@
             rotator: ['sjx-hdl', 'sjx-hdl-m', 'sjx-rotator']
           };
 
-          var handles = _objectSpread2({}, rotatable && rotationHandles, {}, resizable && resizingHandles, {
+          var handles = _objectSpread2(_objectSpread2(_objectSpread2({}, rotatable && rotationHandles), resizable && resizingHandles), {}, {
             center: rotationPoint && rotatable ? ['sjx-hdl', 'sjx-hdl-m', 'sjx-hdl-c', 'sjx-hdl-mc'] : undefined
           });
 
@@ -2319,102 +2421,6 @@
         addClass(element, cls);
       });
       return element;
-    };
-
-    var svgPoint = createSVGElement('svg').createSVGPoint();
-    var floatRE = /[+-]?\d+(\.\d+)?/g;
-    var ALLOWED_ELEMENTS = ['circle', 'ellipse', 'image', 'line', 'path', 'polygon', 'polyline', 'rect', 'text', 'g', 'foreignobject'];
-    function createSVGElement(name) {
-      return document.createElementNS('http://www.w3.org/2000/svg', name);
-    }
-    var checkChildElements = function checkChildElements(element) {
-      var arrOfElements = [];
-
-      if (isGroup(element)) {
-        forEach.call(element.childNodes, function (item) {
-          if (item.nodeType === 1) {
-            var tagName = item.tagName.toLowerCase();
-
-            if (ALLOWED_ELEMENTS.indexOf(tagName) !== -1) {
-              if (tagName === 'g') {
-                arrOfElements.push.apply(arrOfElements, _toConsumableArray(checkChildElements(item)));
-              }
-
-              arrOfElements.push(item);
-            }
-          }
-        });
-      } else {
-        arrOfElements.push(element);
-      }
-
-      return arrOfElements;
-    };
-    var createSVGMatrix = function createSVGMatrix() {
-      return createSVGElement('svg').createSVGMatrix();
-    };
-    var getTransformToElement = function getTransformToElement(toElement, g) {
-      var gTransform = g.getScreenCTM() || createSVGMatrix();
-      return gTransform.inverse().multiply(toElement.getScreenCTM() || createSVGMatrix());
-    };
-    var matrixToString = function matrixToString(m) {
-      var a = m.a,
-          b = m.b,
-          c = m.c,
-          d = m.d,
-          e = m.e,
-          f = m.f;
-      return "matrix(".concat(a, ",").concat(b, ",").concat(c, ",").concat(d, ",").concat(e, ",").concat(f, ")");
-    };
-    var pointTo = function pointTo(ctm, x, y) {
-      svgPoint.x = x;
-      svgPoint.y = y;
-      return svgPoint.matrixTransform(ctm);
-    };
-    var cloneMatrix = function cloneMatrix(b) {
-      var a = createSVGMatrix();
-      a.a = b.a;
-      a.b = b.b;
-      a.c = b.c;
-      a.d = b.d;
-      a.e = b.e;
-      a.f = b.f;
-      return a;
-    };
-    var checkElement = function checkElement(el) {
-      var tagName = el.tagName.toLowerCase();
-
-      if (ALLOWED_ELEMENTS.indexOf(tagName) === -1) {
-        warn('Selected element ' + tagName + ' is not allowed to transform. Allowed elements:\n' + 'circle, ellipse, image, line, path, polygon, polyline, rect, text, g, foreignObject');
-        return false;
-      } else {
-        return true;
-      }
-    };
-    var createPoint = function createPoint(svg, x, y) {
-      if (isUndef(x) || isUndef(y)) {
-        return null;
-      }
-
-      var pt = svg.createSVGPoint();
-      pt.x = x;
-      pt.y = y;
-      return pt;
-    };
-    var isGroup = function isGroup(element) {
-      return element.tagName.toLowerCase() === 'g';
-    };
-    var shouldKeepTransformations = function shouldKeepTransformations(element) {
-      return ['g', 'svg', 'rect', 'foreignobject'].includes(element.tagName.toLowerCase());
-    };
-    var parsePoints = function parsePoints(pts) {
-      return pts.match(floatRE).reduce(function (result, value, index, array) {
-        if (index % 2 === 0) {
-          result.push(array.slice(index, index + 2));
-        }
-
-        return result;
-      }, []);
     };
 
     var dRE = /\s*([achlmqstvz])([^achlmqstvz]*)\s*/gi;
@@ -3059,7 +3065,7 @@
             };
           }
 
-          var handles = _objectSpread2({}, resizable && resizingHandles, {
+          var handles = _objectSpread2(_objectSpread2({}, resizable && resizingHandles), {}, {
             rotator: rotator,
             center: rotationPoint && rotatable ? createPoint(container, centerX, centerY) || boxCenter : undefined
           });
@@ -3082,7 +3088,7 @@
           this.storage = {
             wrapper: wrapper,
             box: box,
-            handles: _objectSpread2({}, handles, {}, rotationHandles),
+            handles: _objectSpread2(_objectSpread2({}, handles), rotationHandles),
             parent: el.parentNode
           };
           helper(wrapper).on('mousedown', this._onMouseDown).on('touchstart', this._onTouchStart);
@@ -3201,7 +3207,7 @@
             eM.f = dy;
             var translateMatrix = eM.multiply(matrix).multiply(eM.inverse());
 
-            if (!shouldKeepTransformations(element)) {
+            if (!options.keepTransformations) {
               element.setAttribute('transform', matrixToString(translateMatrix));
               applyTranslate(element, {
                 x: dx,
@@ -3225,7 +3231,7 @@
               boxMatrix: null
             });
 
-            if (!shouldKeepTransformations(element)) {
+            if (!options.keepTransformations) {
               applyResize(element, {
                 scaleX: scaleX,
                 scaleY: scaleY,
@@ -3339,7 +3345,7 @@
             width: newWidth,
             height: newHeight
           };
-          applyTransformToHandles(storage, options, _objectSpread2({}, finalValues, {
+          applyTransformToHandles(storage, options, _objectSpread2(_objectSpread2({}, finalValues), {}, {
             boxMatrix: null
           }));
           return finalValues;

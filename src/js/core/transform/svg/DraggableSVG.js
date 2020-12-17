@@ -13,7 +13,7 @@ import {
     parsePoints,
     getTransformToElement,
     matrixToString,
-    pointTo, shouldKeepTransformations
+    pointTo
 } from './util';
 
 const THEME_COLOR = '#00a8ff';
@@ -399,7 +399,7 @@ export default class DraggableSVG extends Transformable {
             const translateMatrix = eM.multiply(matrix)
                 .multiply(eM.inverse());
 
-            if (!shouldKeepTransformations(element)) {
+            if (!options.keepTransformations) {
                 element.setAttribute(
                     'transform',
                     matrixToString(translateMatrix)
@@ -432,7 +432,7 @@ export default class DraggableSVG extends Transformable {
                 }
             );
 
-            if (!shouldKeepTransformations(element)) {
+            if (!options.keepTransformations) {
                 applyResize(element, {
                     scaleX,
                     scaleY,

@@ -17,6 +17,8 @@ import {
     getOffset
 } from '../util/css-util';
 
+import { shouldKeepTransformations } from './svg/util';
+
 export default class Transformable extends SubjectModel {
 
     constructor(el, options, observable) {
@@ -79,6 +81,7 @@ export default class Transformable extends SubjectModel {
 
         let _restrict = null,
             _proportions = false,
+            _keepTransformations = false,
             _axis = 'xy',
             _withoutScaling = false,
             _minSize = 5,
@@ -127,6 +130,7 @@ export default class Transformable extends SubjectModel {
                 onDestroy,
                 container,
                 proportions,
+                keepTransformations,
                 custom,
                 rotatorAnchor,
                 rotatorOffset,
@@ -174,6 +178,7 @@ export default class Transformable extends SubjectModel {
 
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
+            _keepTransformations = typeof keepTransformations === "boolean" ? keepTransformations : shouldKeepTransformations(el);
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
             _allowReversing = allowReversing || true;
@@ -209,6 +214,7 @@ export default class Transformable extends SubjectModel {
             snap: _snap,
             each: _each,
             proportions: _proportions,
+            keepTransformations: _keepTransformations,
             draggable: _draggable,
             resizable: _resizable,
             rotatable: _rotatable,

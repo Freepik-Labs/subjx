@@ -648,6 +648,123 @@ const matrixToCSS = (arr) => {
     };
 };
 
+const svgPoint = createSVGElement('svg').createSVGPoint();
+const floatRE = /[+-]?\d+(\.\d+)?/g;
+
+const ALLOWED_ELEMENTS = [
+    'circle', 'ellipse',
+    'image', 'line',
+    'path', 'polygon',
+    'polyline', 'rect',
+    'text', 'g', 'foreignobject'
+];
+
+function createSVGElement(name) {
+    return document.createElementNS('http://www.w3.org/2000/svg', name);
+}
+
+const checkChildElements = (element) => {
+    const arrOfElements = [];
+
+    if (isGroup(element)) {
+        forEach.call(element.childNodes, item => {
+            if (item.nodeType === 1) {
+                const tagName = item.tagName.toLowerCase();
+
+                if (ALLOWED_ELEMENTS.indexOf(tagName) !== -1) {
+                    if (tagName === 'g') {
+                        arrOfElements.push(...checkChildElements(item));
+                    }
+                    arrOfElements.push(item);
+                }
+            }
+        });
+    } else {
+        arrOfElements.push(element);
+    }
+
+    return arrOfElements;
+};
+
+const createSVGMatrix = () => {
+    return createSVGElement('svg').createSVGMatrix();
+};
+
+const getTransformToElement = (toElement, g) => {
+    const gTransform = g.getScreenCTM() || createSVGMatrix();
+    return gTransform.inverse().multiply(
+        toElement.getScreenCTM() || createSVGMatrix()
+    );
+};
+
+const matrixToString = (m) => {
+    const { a, b, c, d, e, f } = m;
+    return `matrix(${a},${b},${c},${d},${e},${f})`;
+};
+
+const pointTo = (ctm, x, y) => {
+    svgPoint.x = x;
+    svgPoint.y = y;
+    return svgPoint.matrixTransform(ctm);
+};
+
+const cloneMatrix = (b) => {
+    const a = createSVGMatrix();
+
+    a.a = b.a;
+    a.b = b.b;
+    a.c = b.c;
+    a.d = b.d;
+    a.e = b.e;
+    a.f = b.f;
+
+    return a;
+};
+
+const checkElement = (el) => {
+    const tagName = el.tagName.toLowerCase();
+
+    if (ALLOWED_ELEMENTS.indexOf(tagName) === -1) {
+        warn(
+            'Selected element ' + tagName +' is not allowed to transform. Allowed elements:\n' +
+            'circle, ellipse, image, line, path, polygon, polyline, rect, text, g, foreignObject'
+        );
+        return false;
+    } else {
+        return true;
+    }
+};
+
+const createPoint = (svg, x, y) => {
+    if (isUndef(x) || isUndef(y)) {
+        return null;
+    }
+    const pt = svg.createSVGPoint();
+    pt.x = x;
+    pt.y = y;
+    return pt;
+};
+
+const isGroup = (element) => {
+    return element.tagName.toLowerCase() === 'g';
+};
+
+const shouldKeepTransformations = (element) => {
+    return ['g','svg', 'rect', 'foreignobject'].includes(element.tagName.toLowerCase());
+};
+
+const parsePoints = (pts) => {
+    return pts.match(floatRE).reduce(
+        (result, value, index, array) => {
+            if (index % 2 === 0) {
+                result.push(array.slice(index, index + 2));
+            }
+            return result;
+        },
+        []
+    );
+};
+
 class Transformable extends SubjectModel {
 
     constructor(el, options, observable) {
@@ -710,6 +827,7 @@ class Transformable extends SubjectModel {
 
         let _restrict = null,
             _proportions = false,
+            _keepTransformations = false,
             _axis = 'xy',
             _withoutScaling = false,
             _minSize = 5,
@@ -758,6 +876,7 @@ class Transformable extends SubjectModel {
                 onDestroy,
                 container,
                 proportions,
+                keepTransformations,
                 custom,
                 rotatorAnchor,
                 rotatorOffset,
@@ -805,6 +924,7 @@ class Transformable extends SubjectModel {
 
             _rotationPoint = rotationPoint || false;
             _proportions = proportions || false;
+            _keepTransformations = typeof keepTransformations === "boolean" ? keepTransformations : shouldKeepTransformations(el);
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
             _allowReversing = allowReversing || true;
@@ -840,6 +960,7 @@ class Transformable extends SubjectModel {
             snap: _snap,
             each: _each,
             proportions: _proportions,
+            keepTransformations: _keepTransformations,
             draggable: _draggable,
             resizable: _resizable,
             rotatable: _rotatable,
@@ -2350,123 +2471,6 @@ const createHandler = (classList) => {
     return element;
 };
 
-const svgPoint = createSVGElement('svg').createSVGPoint();
-const floatRE = /[+-]?\d+(\.\d+)?/g;
-
-const ALLOWED_ELEMENTS = [
-    'circle', 'ellipse',
-    'image', 'line',
-    'path', 'polygon',
-    'polyline', 'rect',
-    'text', 'g', 'foreignobject'
-];
-
-function createSVGElement(name) {
-    return document.createElementNS('http://www.w3.org/2000/svg', name);
-}
-
-const checkChildElements = (element) => {
-    const arrOfElements = [];
-
-    if (isGroup(element)) {
-        forEach.call(element.childNodes, item => {
-            if (item.nodeType === 1) {
-                const tagName = item.tagName.toLowerCase();
-
-                if (ALLOWED_ELEMENTS.indexOf(tagName) !== -1) {
-                    if (tagName === 'g') {
-                        arrOfElements.push(...checkChildElements(item));
-                    }
-                    arrOfElements.push(item);
-                }
-            }
-        });
-    } else {
-        arrOfElements.push(element);
-    }
-
-    return arrOfElements;
-};
-
-const createSVGMatrix = () => {
-    return createSVGElement('svg').createSVGMatrix();
-};
-
-const getTransformToElement = (toElement, g) => {
-    const gTransform = g.getScreenCTM() || createSVGMatrix();
-    return gTransform.inverse().multiply(
-        toElement.getScreenCTM() || createSVGMatrix()
-    );
-};
-
-const matrixToString = (m) => {
-    const { a, b, c, d, e, f } = m;
-    return `matrix(${a},${b},${c},${d},${e},${f})`;
-};
-
-const pointTo = (ctm, x, y) => {
-    svgPoint.x = x;
-    svgPoint.y = y;
-    return svgPoint.matrixTransform(ctm);
-};
-
-const cloneMatrix = (b) => {
-    const a = createSVGMatrix();
-
-    a.a = b.a;
-    a.b = b.b;
-    a.c = b.c;
-    a.d = b.d;
-    a.e = b.e;
-    a.f = b.f;
-
-    return a;
-};
-
-const checkElement = (el) => {
-    const tagName = el.tagName.toLowerCase();
-
-    if (ALLOWED_ELEMENTS.indexOf(tagName) === -1) {
-        warn(
-            'Selected element ' + tagName +' is not allowed to transform. Allowed elements:\n' +
-            'circle, ellipse, image, line, path, polygon, polyline, rect, text, g, foreignObject'
-        );
-        return false;
-    } else {
-        return true;
-    }
-};
-
-const createPoint = (svg, x, y) => {
-    if (isUndef(x) || isUndef(y)) {
-        return null;
-    }
-    const pt = svg.createSVGPoint();
-    pt.x = x;
-    pt.y = y;
-    return pt;
-};
-
-const isGroup = (element) => {
-    return element.tagName.toLowerCase() === 'g';
-};
-
-const shouldKeepTransformations = (element) => {
-    return ['g','svg', 'rect', 'foreignobject'].includes(element.tagName.toLowerCase());
-};
-
-const parsePoints = (pts) => {
-    return pts.match(floatRE).reduce(
-        (result, value, index, array) => {
-            if (index % 2 === 0) {
-                result.push(array.slice(index, index + 2));
-            }
-            return result;
-        },
-        []
-    );
-};
-
 const dRE = /\s*([achlmqstvz])([^achlmqstvz]*)\s*/gi;
 const sepRE = /\s*,\s*|\s+/g;
 
@@ -3398,7 +3402,7 @@ class DraggableSVG extends Transformable {
             const translateMatrix = eM.multiply(matrix)
                 .multiply(eM.inverse());
 
-            if (!shouldKeepTransformations(element)) {
+            if (!options.keepTransformations) {
                 element.setAttribute(
                     'transform',
                     matrixToString(translateMatrix)
@@ -3431,7 +3435,7 @@ class DraggableSVG extends Transformable {
                 }
             );
 
-            if (!shouldKeepTransformations(element)) {
+            if (!options.keepTransformations) {
                 applyResize(element, {
                     scaleX,
                     scaleY,
