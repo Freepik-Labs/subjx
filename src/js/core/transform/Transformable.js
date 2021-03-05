@@ -290,12 +290,14 @@ export default class Transformable extends SubjectModel {
                 cy
             } = storage;
 
+
             const { x, y } = this._pointToElement(
                 {
                     x: clientX,
                     y: clientY
                 }
             );
+
 
             let dx = dox
                 ? snapToGrid(x - cx, snap.x / transform.scX)
@@ -693,6 +695,7 @@ export default class Transformable extends SubjectModel {
         storage.cursor = null;
 
         this._apply(actionName);
+        console.log('apply');
 
         const eventArgs = {
             clientX,

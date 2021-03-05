@@ -1034,12 +1034,14 @@ class Transformable extends SubjectModel {
                 cy
             } = storage;
 
+
             const { x, y } = this._pointToElement(
                 {
                     x: clientX,
                     y: clientY
                 }
             );
+
 
             let dx = dox
                 ? snapToGrid(x - cx, snap.x / transform.scX)
@@ -1437,6 +1439,7 @@ class Transformable extends SubjectModel {
         storage.cursor = null;
 
         this._apply(actionName);
+        console.log('apply');
 
         const eventArgs = {
             clientX,
@@ -3421,19 +3424,20 @@ class DraggableSVG extends Transformable {
                 height: newHeight
             } = box.getBBox();
 
-            applyTransformToHandles(
-                storage,
-                options,
-                {
-                    x,
-                    y,
-                    width: newWidth,
-                    height: newHeight,
-                    boxMatrix: null
-                }
-            );
 
             if (!options.keepTransformations) {
+                applyTransformToHandles(
+                    storage,
+                    options,
+                    {
+                        x,
+                        y,
+                        width: newWidth,
+                        height: newHeight,
+                        boxMatrix: null
+                    }
+                );
+
                 applyResize(element, {
                     scaleX,
                     scaleY,
@@ -3448,6 +3452,8 @@ class DraggableSVG extends Transformable {
                     'transform',
                     matrixToString(matrix)
                 );
+            } else {
+                this.storage.temporalCtm = ctm;
             }
         }
 
@@ -3486,6 +3492,11 @@ class DraggableSVG extends Transformable {
             width: newWidth,
             height: newHeight
         } = el.getBBox();
+
+        if (el.dataset.temporalWidth) {
+            newWidth = el.dataset.temporalWidth;
+            newHeight = el.dataset.temporalHeight;
+        }
 
         if (processResize) {
             const resized = processResize(dx, dy, revX, revY);
@@ -3771,7 +3782,7 @@ class DraggableSVG extends Transformable {
         } = box.getBBox();
 
         const elMatrix = getTransformToElement(element, parent),
-            ctm = getTransformToElement(element, container),
+            ctm = storage.temporalCtm || getTransformToElement(element, container),
             boxCTM = getTransformToElement(box.parentNode, container);
 
         const parentMatrix = getTransformToElement(parent, container);

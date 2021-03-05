@@ -134,7 +134,7 @@
       if (typeof Proxy === "function") return true;
 
       try {
-        Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
         return true;
       } catch (e) {
         return false;
@@ -1566,6 +1566,7 @@
 
           this._apply(actionName);
 
+          console.log('apply');
           var eventArgs = {
             clientX: clientX,
             clientY: clientY
@@ -3223,15 +3224,14 @@
                 newWidth = _box$getBBox2.width,
                 newHeight = _box$getBBox2.height;
 
-            applyTransformToHandles(storage, options, {
-              x: x,
-              y: y,
-              width: newWidth,
-              height: newHeight,
-              boxMatrix: null
-            });
-
             if (!options.keepTransformations) {
+              applyTransformToHandles(storage, options, {
+                x: x,
+                y: y,
+                width: newWidth,
+                height: newHeight,
+                boxMatrix: null
+              });
               applyResize(element, {
                 scaleX: scaleX,
                 scaleY: scaleY,
@@ -3242,6 +3242,8 @@
                 withoutScaling: options.withoutScaling
               });
               element.setAttribute('transform', matrixToString(matrix));
+            } else {
+              this.storage.temporalCtm = ctm;
             }
           }
 
@@ -3277,6 +3279,11 @@
           var _el$getBBox2 = el.getBBox(),
               newWidth = _el$getBBox2.width,
               newHeight = _el$getBBox2.height;
+
+          if (el.dataset.temporalWidth) {
+            newWidth = el.dataset.temporalWidth;
+            newHeight = el.dataset.temporalHeight;
+          }
 
           if (processResize) {
             var resized = processResize(dx, dy, revX, revY);
@@ -3478,7 +3485,7 @@
               c_top = _box$getBBox3.y;
 
           var elMatrix = getTransformToElement(element, parent),
-              ctm = getTransformToElement(element, container),
+              ctm = storage.temporalCtm || getTransformToElement(element, container),
               boxCTM = getTransformToElement(box.parentNode, container);
           var parentMatrix = getTransformToElement(parent, container);
           var scaleX = el_x + el_w * (doH ? 0.5 : revX ? 1 : 0),
