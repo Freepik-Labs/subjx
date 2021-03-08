@@ -695,7 +695,6 @@ export default class Transformable extends SubjectModel {
         storage.cursor = null;
 
         this._apply(actionName);
-        console.log('apply');
 
         const eventArgs = {
             clientX,
