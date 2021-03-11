@@ -3499,8 +3499,13 @@ class DraggableSVG extends Transformable {
             newHeight = el.dataset.temporalHeight;
         }
 
+        const fixedDeltas = {};
+
         if (processResize) {
             const resized = processResize(dx, dy, revX, revY);
+
+            fixedDeltas.fdx = dx + (resized && resized.x ? resized.x : 0);
+            fixedDeltas.fdy = dy + (resized && resized.y ? resized.y : 0);
 
             dx += resized && resized.x ? resized.x : 0;
             dy += resized && resized.y ? resized.y : 0;
@@ -3584,7 +3589,8 @@ class DraggableSVG extends Transformable {
             x: newX,
             y: newY,
             width: newWidth,
-            height: newHeight
+            height: newHeight,
+            ...fixedDeltas
         };
 
         applyTransformToHandles(
