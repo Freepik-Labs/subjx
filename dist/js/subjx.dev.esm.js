@@ -426,13 +426,14 @@ class SubjectModel {
     }
 
     _drag({ dx, dy, ...rest }) {
-        const transform = this._processMove(dx, dy);
+        const {transform, fixedDeltas} = this._processMove(dx, dy);
 
         const finalArgs = {
             dx,
             dy,
             transform,
-            ...rest
+            ...rest,
+            ...fixedDeltas
         };
 
         this.proxyMethods.onMove.call(this, finalArgs);
@@ -3502,10 +3503,6 @@ class DraggableSVG extends Transformable {
         if (processResize) {
             const resized = processResize(dx, dy, revX, revY);
 
-            // console.log('subjx deltas:', dx, dy);
-            // console.log('subjx resized:', resized);
-            // console.log('---');
-
             fixedDeltas.fdx = dx + (resized && resized.x ? resized.x : 0);
             fixedDeltas.fdy = dy + (resized && resized.y ? resized.y : 0);
 
@@ -3658,6 +3655,11 @@ class DraggableSVG extends Transformable {
 
         let moved = processMove && processMove(x, y);
 
+        const fixedDeltas = {
+            fdx: dx,
+            fdy: dy
+        };
+
         if(moved) {
             const altered = rotateCoordinates(moved.x || 0, moved.y || 0,0,0, moved.rotation || 0);
 
@@ -3669,8 +3671,23 @@ class DraggableSVG extends Transformable {
                 matrixToString(moveWrapperMtrx)
             );
 
-            trMatrix.e += moved.x || 0;
-            trMatrix.f += moved.y || 0;
+            trMatrix.e += moved.x / parentMatrix.a || 0;
+            trMatrix.f += moved.y / parentMatrix.d || 0;
+
+            fixedDeltas.fdx = dx + moved.x;
+            fixedDeltas.fdy = dy + moved.y;
+
+            if (dx < 0 && dx > fixedDeltas.fdx) {
+                fixedDeltas.fdx = dx;
+            } else  if (dx > 0 && dx < fixedDeltas.fdx) {
+                fixedDeltas.fdx = dx;
+            }
+
+            if (dy < 0 && dy > fixedDeltas.fdy) {
+                fixedDeltas.fdy = dy;
+            } else  if (dy > 0 && dy < fixedDeltas.fdy) {
+                fixedDeltas.fdy = dy;
+            }
         }
 
         const moveElementMtrx = trMatrix.multiply(matrix);
@@ -3699,7 +3716,7 @@ class DraggableSVG extends Transformable {
             this._moveCenterHandle(-nx, -ny);
         }
 
-        return moveElementMtrx;
+        return {transform: moveElementMtrx, fixedDeltas};
     }
 
     _processRotate(radians) {

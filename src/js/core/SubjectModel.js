@@ -58,13 +58,14 @@ export default class SubjectModel {
     }
 
     _drag({ dx, dy, ...rest }) {
-        const transform = this._processMove(dx, dy);
+        const {transform, fixedDeltas} = this._processMove(dx, dy);
 
         const finalArgs = {
             dx,
             dy,
             transform,
-            ...rest
+            ...rest,
+            ...fixedDeltas
         };
 
         this.proxyMethods.onMove.call(this, finalArgs);

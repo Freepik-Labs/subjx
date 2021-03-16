@@ -134,7 +134,7 @@
       if (typeof Proxy === "function") return true;
 
       try {
-        Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
         return true;
       } catch (e) {
         return false;
@@ -725,13 +725,15 @@
               dy = _ref.dy,
               rest = _objectWithoutProperties(_ref, ["dx", "dy"]);
 
-          var transform = this._processMove(dx, dy);
+          var _this$_processMove = this._processMove(dx, dy),
+              transform = _this$_processMove.transform,
+              fixedDeltas = _this$_processMove.fixedDeltas;
 
-          var finalArgs = _objectSpread2({
+          var finalArgs = _objectSpread2(_objectSpread2({
             dx: dx,
             dy: dy,
             transform: transform
-          }, rest);
+          }, rest), fixedDeltas);
 
           this.proxyMethods.onMove.call(this, finalArgs);
 
@@ -3287,10 +3289,7 @@
           var fixedDeltas = {};
 
           if (processResize) {
-            var resized = processResize(dx, dy, revX, revY); // console.log('subjx deltas:', dx, dy);
-            // console.log('subjx resized:', resized);
-            // console.log('---');
-
+            var resized = processResize(dx, dy, revX, revY);
             fixedDeltas.fdx = dx + (resized && resized.x ? resized.x : 0);
             fixedDeltas.fdy = dy + (resized && resized.y ? resized.y : 0);
             dx += resized && resized.x ? resized.x : 0;
@@ -3401,14 +3400,32 @@
           trMatrix.e = x;
           trMatrix.f = y;
           var moved = processMove && processMove(x, y);
+          var fixedDeltas = {
+            fdx: dx,
+            fdy: dy
+          };
 
           if (moved) {
             var altered = rotateCoordinates(moved.x || 0, moved.y || 0, 0, 0, moved.rotation || 0);
             moveWrapperMtrx.e += altered.x;
             moveWrapperMtrx.f += altered.y;
             wrapper.setAttribute('transform', matrixToString(moveWrapperMtrx));
-            trMatrix.e += moved.x || 0;
-            trMatrix.f += moved.y || 0;
+            trMatrix.e += moved.x / parentMatrix.a || 0;
+            trMatrix.f += moved.y / parentMatrix.d || 0;
+            fixedDeltas.fdx = dx + moved.x;
+            fixedDeltas.fdy = dy + moved.y;
+
+            if (dx < 0 && dx > fixedDeltas.fdx) {
+              fixedDeltas.fdx = dx;
+            } else if (dx > 0 && dx < fixedDeltas.fdx) {
+              fixedDeltas.fdx = dx;
+            }
+
+            if (dy < 0 && dy > fixedDeltas.fdy) {
+              fixedDeltas.fdy = dy;
+            } else if (dy > 0 && dy < fixedDeltas.fdy) {
+              fixedDeltas.fdy = dy;
+            }
           }
 
           var moveElementMtrx = trMatrix.multiply(matrix);
@@ -3431,7 +3448,10 @@
             this._moveCenterHandle(-nx, -ny);
           }
 
-          return moveElementMtrx;
+          return {
+            transform: moveElementMtrx,
+            fixedDeltas: fixedDeltas
+          };
         }
       }, {
         key: "_processRotate",
