@@ -134,7 +134,7 @@
       if (typeof Proxy === "function") return true;
 
       try {
-        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+        Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
         return true;
       } catch (e) {
         return false;
@@ -194,13 +194,11 @@
     }
 
     function _createSuper(Derived) {
-      var hasNativeReflectConstruct = _isNativeReflectConstruct();
-
-      return function _createSuperInternal() {
+      return function () {
         var Super = _getPrototypeOf(Derived),
             result;
 
-        if (hasNativeReflectConstruct) {
+        if (_isNativeReflectConstruct()) {
           var NewTarget = _getPrototypeOf(this).constructor;
 
           result = Reflect.construct(Super, arguments, NewTarget);
@@ -264,7 +262,7 @@
       if (typeof o === "string") return _arrayLikeToArray(o, minLen);
       var n = Object.prototype.toString.call(o).slice(8, -1);
       if (n === "Object" && o.constructor) n = o.constructor.name;
-      if (n === "Map" || n === "Set") return Array.from(o);
+      if (n === "Map" || n === "Set") return Array.from(n);
       if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
     }
 
@@ -729,11 +727,11 @@
               transform = _this$_processMove.transform,
               fixedDeltas = _this$_processMove.fixedDeltas;
 
-          var finalArgs = _objectSpread2(_objectSpread2({
+          var finalArgs = _objectSpread2({
             dx: dx,
             dy: dy,
             transform: transform
-          }, rest), fixedDeltas);
+          }, rest, {}, fixedDeltas);
 
           this.proxyMethods.onMove.call(this, finalArgs);
 
@@ -1067,7 +1065,7 @@
 
           var finalValues = this._processResize(dx, dy);
 
-          var finalArgs = _objectSpread2(_objectSpread2({}, finalValues), {}, {
+          var finalArgs = _objectSpread2({}, finalValues, {
             dx: dx,
             dy: dy
           }, rest);
@@ -1474,7 +1472,7 @@
             dox: /\x/.test(axis) && (doResize ? handle.is(handles.ml) || handle.is(handles.mr) || handle.is(handles.tl) || handle.is(handles.tr) || handle.is(handles.bl) || handle.is(handles.br) : true),
             doy: /\y/.test(axis) && (doResize ? handle.is(handles.br) || handle.is(handles.bl) || handle.is(handles.bc) || handle.is(handles.tr) || handle.is(handles.tl) || handle.is(handles.tc) : true)
           };
-          this.storage = _objectSpread2(_objectSpread2({}, storage), newStorageValues);
+          this.storage = _objectSpread2({}, storage, {}, newStorageValues);
           var eventArgs = {
             clientX: clientX,
             clientY: clientY
@@ -1627,7 +1625,7 @@
               clientY = _this$_cursorPoint3.y;
 
           var pressang = Math.atan2(clientY - _computed.center.y, clientX - _computed.center.x);
-          return _objectSpread2(_objectSpread2(_objectSpread2({}, _computed), rest), {}, {
+          return _objectSpread2({}, _computed, {}, rest, {
             handle: handle,
             pressang: pressang
           });
@@ -1726,7 +1724,7 @@
           if (triggerEvent) {
             var recalc = this._getState(rest);
 
-            this.storage = _objectSpread2(_objectSpread2({}, this.storage), recalc);
+            this.storage = _objectSpread2({}, this.storage, {}, recalc);
 
             this._emitEvent("".concat(actionName, "Start"), {
               clientX: clientX,
@@ -1796,7 +1794,7 @@
               dy = _ref8.dy;
           var draggable = this.options.draggable;
           if (!draggable) return;
-          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
+          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
             revX: false,
             revY: false,
             doW: false,
@@ -1821,7 +1819,7 @@
               doH = _ref9.doH;
           var resizable = this.options.resizable;
           if (!resizable) return;
-          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
+          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
             revX: revX || false,
             revY: revY || false,
             doW: doW || false,
@@ -1841,7 +1839,7 @@
           var delta = _ref10.delta;
           var rotatable = this.options.rotatable;
           if (!rotatable) return;
-          this.storage = _objectSpread2(_objectSpread2({}, this.storage), this._getState({
+          this.storage = _objectSpread2({}, this.storage, {}, this._getState({
             revX: false,
             revY: false,
             doW: false,
@@ -2106,7 +2104,7 @@
             rotator: ['sjx-hdl', 'sjx-hdl-m', 'sjx-rotator']
           };
 
-          var handles = _objectSpread2(_objectSpread2(_objectSpread2({}, rotatable && rotationHandles), resizable && resizingHandles), {}, {
+          var handles = _objectSpread2({}, rotatable && rotationHandles, {}, resizable && resizingHandles, {
             center: rotationPoint && rotatable ? ['sjx-hdl', 'sjx-hdl-m', 'sjx-hdl-c', 'sjx-hdl-mc'] : undefined
           });
 
@@ -3067,7 +3065,7 @@
             };
           }
 
-          var handles = _objectSpread2(_objectSpread2({}, resizable && resizingHandles), {}, {
+          var handles = _objectSpread2({}, resizable && resizingHandles, {
             rotator: rotator,
             center: rotationPoint && rotatable ? createPoint(container, centerX, centerY) || boxCenter : undefined
           });
@@ -3090,7 +3088,7 @@
           this.storage = {
             wrapper: wrapper,
             box: box,
-            handles: _objectSpread2(_objectSpread2({}, handles), rotationHandles),
+            handles: _objectSpread2({}, handles, {}, rotationHandles),
             parent: el.parentNode
           };
           helper(wrapper).on('mousedown', this._onMouseDown).on('touchstart', this._onTouchStart);
@@ -3359,7 +3357,7 @@
             height: newHeight
           }, fixedDeltas);
 
-          applyTransformToHandles(storage, options, _objectSpread2(_objectSpread2({}, finalValues), {}, {
+          applyTransformToHandles(storage, options, _objectSpread2({}, finalValues, {
             boxMatrix: null
           }));
           return finalValues;
