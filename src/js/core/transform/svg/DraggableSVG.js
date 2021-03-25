@@ -513,8 +513,20 @@ export default class DraggableSVG extends Transformable {
         newWidth = proportions ? cw * ratio : cw + dx;
         newHeight = proportions ? ch * ratio : ch + dy;
 
+        // In order to have a min size checker for width and height separately,
+        // minSize param is used as object when it is a number
+        let objMinSize = {};
 
-        if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
+        if (typeof minSize === 'number') {
+            objMinSize.x = minSize;
+            objMinSize.y = minSize;
+        }
+
+        if (typeof minSize === 'object' && Object.prototype.hasOwnProperty.call(minSize, "x") && Object.prototype.hasOwnProperty.call(minSize, "y")) {
+            objMinSize = minSize;
+        }
+
+        if (Math.abs(newWidth) <= objMinSize.x || Math.abs(newHeight) <= objMinSize.y) return;
 
         if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;

@@ -134,7 +134,7 @@
       if (typeof Proxy === "function") return true;
 
       try {
-        Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+        Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
         return true;
       } catch (e) {
         return false;
