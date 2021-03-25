@@ -522,7 +522,7 @@ export default class DraggableSVG extends Transformable {
             objMinSize.height = minSize;
         }
 
-        if (typeof minSize === 'object' && Object.prototype.hasOwnProperty.call(minSize, "x") && Object.prototype.hasOwnProperty.call(minSize, "y")) {
+        if (typeof minSize === 'object' && Object.prototype.hasOwnProperty.call(minSize, "width") && Object.prototype.hasOwnProperty.call(minSize, "height")) {
             objMinSize = minSize;
         }
 
