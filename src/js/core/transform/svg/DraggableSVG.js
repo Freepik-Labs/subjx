@@ -518,15 +518,15 @@ export default class DraggableSVG extends Transformable {
         let objMinSize = {};
 
         if (typeof minSize === 'number') {
-            objMinSize.x = minSize;
-            objMinSize.y = minSize;
+            objMinSize.width = minSize;
+            objMinSize.height = minSize;
         }
 
         if (typeof minSize === 'object' && Object.prototype.hasOwnProperty.call(minSize, "x") && Object.prototype.hasOwnProperty.call(minSize, "y")) {
             objMinSize = minSize;
         }
 
-        if (Math.abs(newWidth) <= objMinSize.x || Math.abs(newHeight) <= objMinSize.y) return;
+        if (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height) return;
 
         if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
