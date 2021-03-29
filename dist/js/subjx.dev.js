@@ -3296,8 +3296,21 @@
 
           var ratio = doW || !doW && !doH ? (cw + dx) / cw : (ch + dy) / ch;
           newWidth = proportions ? cw * ratio : cw + dx;
-          newHeight = proportions ? ch * ratio : ch + dy;
-          if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
+          newHeight = proportions ? ch * ratio : ch + dy; // In order to have a min size checker for width and height separately,
+          // minSize param is used as object when it is a number
+
+          var objMinSize = {};
+
+          if (typeof minSize === 'number') {
+            objMinSize.width = minSize;
+            objMinSize.height = minSize;
+          }
+
+          if (_typeof(minSize) === 'object' && Object.prototype.hasOwnProperty.call(minSize, "width") && Object.prototype.hasOwnProperty.call(minSize, "height")) {
+            objMinSize = minSize;
+          }
+
+          if (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height) return;
 
           if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
@@ -3334,6 +3347,21 @@
 
           var scaleMatrix = trMatrix.multiply(scMatrix).multiply(trMatrix.inverse());
           var res = matrix.multiply(scaleMatrix);
+          var deltaW = newWidth - cw,
+              deltaH = newHeight - ch;
+
+          var _el$getBoundingClient = el.getBoundingClientRect(),
+              realWidth = _el$getBoundingClient.width,
+              realHeight = _el$getBoundingClient.height;
+
+          if (Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+            return;
+          }
+
+          if (Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+            return;
+          }
+
           el.setAttribute('transform', matrixToString(res));
 
           if (withoutScaling) {
@@ -3341,8 +3369,6 @@
             el.setAttribute("height", newHeight);
           }
 
-          var deltaW = newWidth - cw,
-              deltaH = newHeight - ch;
           var newX = left - deltaW * (doH ? 0.5 : revX ? 1 : 0),
               newY = top - deltaH * (doW ? 0.5 : revY ? 1 : 0);
           this.storage.cached = {

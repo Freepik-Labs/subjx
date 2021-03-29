@@ -570,6 +570,22 @@ export default class DraggableSVG extends Transformable {
 
         const res = matrix.multiply(scaleMatrix);
 
+        const deltaW = newWidth - cw,
+            deltaH = newHeight - ch;
+
+        const {
+            width: realWidth,
+            height: realHeight
+        } = el.getBoundingClientRect();
+
+        if (Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+            return;
+        }
+
+        if (Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+            return;
+        }
+
         el.setAttribute(
             'transform',
             matrixToString(res)
@@ -579,10 +595,6 @@ export default class DraggableSVG extends Transformable {
             el.setAttribute("width", newWidth);
             el.setAttribute("height", newHeight);
         }
-
-
-        const deltaW = newWidth - cw,
-            deltaH = newHeight - ch;
 
         const newX = left - deltaW * (doH ? 0.5 : (revX ? 1 : 0)),
             newY = top - deltaH * (doW ? 0.5 : (revY ? 1 : 0));

@@ -3519,8 +3519,20 @@ class DraggableSVG extends Transformable {
         newWidth = proportions ? cw * ratio : cw + dx;
         newHeight = proportions ? ch * ratio : ch + dy;
 
+        // In order to have a min size checker for width and height separately,
+        // minSize param is used as object when it is a number
+        let objMinSize = {};
 
-        if (Math.abs(newWidth) <= minSize || Math.abs(newHeight) <= minSize) return;
+        if (typeof minSize === 'number') {
+            objMinSize.width = minSize;
+            objMinSize.height = minSize;
+        }
+
+        if (typeof minSize === 'object' && Object.prototype.hasOwnProperty.call(minSize, "width") && Object.prototype.hasOwnProperty.call(minSize, "height")) {
+            objMinSize = minSize;
+        }
+
+        if (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height) return;
 
         if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
@@ -3564,6 +3576,22 @@ class DraggableSVG extends Transformable {
 
         const res = matrix.multiply(scaleMatrix);
 
+        const deltaW = newWidth - cw,
+            deltaH = newHeight - ch;
+
+        const {
+            width: realWidth,
+            height: realHeight
+        } = el.getBoundingClientRect();
+
+        if (Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+            return;
+        }
+
+        if (Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+            return;
+        }
+
         el.setAttribute(
             'transform',
             matrixToString(res)
@@ -3573,10 +3601,6 @@ class DraggableSVG extends Transformable {
             el.setAttribute("width", newWidth);
             el.setAttribute("height", newHeight);
         }
-
-
-        const deltaW = newWidth - cw,
-            deltaH = newHeight - ch;
 
         const newX = left - deltaW * (doH ? 0.5 : (revX ? 1 : 0)),
             newY = top - deltaH * (doW ? 0.5 : (revY ? 1 : 0));
