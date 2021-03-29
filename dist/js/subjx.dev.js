@@ -1096,6 +1096,7 @@
               _axis = 'xy',
               _withoutScaling = false,
               _minSize = 5,
+              _minSizeMode = 'old',
               _allowReversing = true,
               _processMove = false,
               _processResize = false,
@@ -1147,6 +1148,7 @@
                 showNormal = options.showNormal,
                 withoutScaling = options.withoutScaling,
                 minSize = options.minSize,
+                minSizeMode = options.minSizeMode,
                 allowReversing = options.allowReversing,
                 minStartDistance = options.minStartDistance,
                 processMove = options.processMove,
@@ -1184,6 +1186,7 @@
             _keepTransformations = typeof keepTransformations === "boolean" ? keepTransformations : shouldKeepTransformations(el);
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
+            _minSizeMode = minSizeMode || 'old';
             _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
@@ -1224,6 +1227,7 @@
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
             minSize: _minSize,
+            minSizeMode: _minSizeMode,
             allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
             processMove: _processMove,
@@ -3259,6 +3263,7 @@
               processResize = _this$options2.processResize,
               withoutScaling = _this$options2.withoutScaling,
               minSize = _this$options2.minSize,
+              minSizeMode = _this$options2.minSizeMode,
               allowReversing = _this$options2.allowReversing;
           var left = storage.left,
               top = storage.top,
@@ -3310,7 +3315,7 @@
             objMinSize = minSize;
           }
 
-          if (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height) return;
+          if (minSizeMode === 'old' && (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height)) return;
 
           if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
@@ -3354,11 +3359,11 @@
               realWidth = _el$getBoundingClient.width,
               realHeight = _el$getBoundingClient.height;
 
-          if (Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+          if (minSizeMode === 'new' && Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
             return;
           }
 
-          if (Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+          if (minSizeMode === 'new' && Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
             return;
           }
 

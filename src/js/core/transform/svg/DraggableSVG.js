@@ -461,7 +461,7 @@ export default class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions, processResize, withoutScaling, minSize, allowReversing }
+            options: { proportions, processResize, withoutScaling, minSize, minSizeMode, allowReversing }
         } = this;
 
         const {
@@ -526,7 +526,7 @@ export default class DraggableSVG extends Transformable {
             objMinSize = minSize;
         }
 
-        if (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height) return;
+        if (minSizeMode === 'old' && (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height)) return;
 
         if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
@@ -578,11 +578,11 @@ export default class DraggableSVG extends Transformable {
             height: realHeight
         } = el.getBoundingClientRect();
 
-        if (Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+        if (minSizeMode === 'new' && Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
             return;
         }
 
-        if (Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+        if (minSizeMode === 'new' && Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
             return;
         }
 

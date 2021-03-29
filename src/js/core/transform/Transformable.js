@@ -85,6 +85,7 @@ export default class Transformable extends SubjectModel {
             _axis = 'xy',
             _withoutScaling = false,
             _minSize = 5,
+            _minSizeMode = 'old',
             _allowReversing = true,
             _processMove = false,
             _processResize = false,
@@ -137,6 +138,7 @@ export default class Transformable extends SubjectModel {
                 showNormal,
                 withoutScaling,
                 minSize,
+                minSizeMode,
                 allowReversing,
                 minStartDistance,
                 processMove,
@@ -181,6 +183,7 @@ export default class Transformable extends SubjectModel {
             _keepTransformations = typeof keepTransformations === "boolean" ? keepTransformations : shouldKeepTransformations(el);
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
+            _minSizeMode = minSizeMode || 'old';
             _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
@@ -224,6 +227,7 @@ export default class Transformable extends SubjectModel {
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
             minSize: _minSize,
+            minSizeMode: _minSizeMode,
             allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
             processMove: _processMove,

@@ -832,6 +832,7 @@ class Transformable extends SubjectModel {
             _axis = 'xy',
             _withoutScaling = false,
             _minSize = 5,
+            _minSizeMode = 'old',
             _allowReversing = true,
             _processMove = false,
             _processResize = false,
@@ -884,6 +885,7 @@ class Transformable extends SubjectModel {
                 showNormal,
                 withoutScaling,
                 minSize,
+                minSizeMode,
                 allowReversing,
                 minStartDistance,
                 processMove,
@@ -928,6 +930,7 @@ class Transformable extends SubjectModel {
             _keepTransformations = typeof keepTransformations === "boolean" ? keepTransformations : shouldKeepTransformations(el);
             _withoutScaling = withoutScaling || false;
             _minSize = minSize || 5;
+            _minSizeMode = minSizeMode || 'old';
             _allowReversing = allowReversing || true;
             _minStartDistance = minStartDistance || false;
             _processMove = processMove || false;
@@ -971,6 +974,7 @@ class Transformable extends SubjectModel {
             showNormal: _showNormal,
             withoutScaling: _withoutScaling,
             minSize: _minSize,
+            minSizeMode: _minSizeMode,
             allowReversing: _allowReversing,
             minStartDistance: _minStartDistance,
             processMove: _processMove,
@@ -3467,7 +3471,7 @@ class DraggableSVG extends Transformable {
             el,
             storage,
             options,
-            options: { proportions, processResize, withoutScaling, minSize, allowReversing }
+            options: { proportions, processResize, withoutScaling, minSize, minSizeMode, allowReversing }
         } = this;
 
         const {
@@ -3532,7 +3536,7 @@ class DraggableSVG extends Transformable {
             objMinSize = minSize;
         }
 
-        if (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height) return;
+        if (minSizeMode === 'old' && (Math.abs(newWidth) <= objMinSize.width || Math.abs(newHeight) <= objMinSize.height)) return;
 
         if ((withoutScaling || allowReversing) && newWidth <= 0) {
             return;
@@ -3584,11 +3588,11 @@ class DraggableSVG extends Transformable {
             height: realHeight
         } = el.getBoundingClientRect();
 
-        if (Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+        if (minSizeMode === 'new' && Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
             return;
         }
 
-        if (Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+        if (minSizeMode === 'new' && Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
             return;
         }
 
