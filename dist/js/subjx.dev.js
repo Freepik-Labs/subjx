@@ -3359,11 +3359,11 @@
               realWidth = _el$getBoundingClient.width,
               realHeight = _el$getBoundingClient.height;
 
-          if (minSizeMode === 'new' && Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+          if (minSizeMode === 'new' && !options.proportions && Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
             return;
           }
 
-          if (minSizeMode === 'new' && Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+          if (minSizeMode === 'new' && !options.proportions && Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
             return;
           }
 
@@ -3381,14 +3381,14 @@
               tempHeight = _el$getBoundingClient2.height,
               tempWidth = _el$getBoundingClient2.width;
 
-          if (minSizeMode === 'new' && parseFloat(Math.abs(tempWidth).toFixed(2)) < parseFloat(objMinSize.width.toFixed(2))) {
+          if (minSizeMode === 'new' && !options.proportions && parseFloat(Math.abs(tempWidth).toFixed(2)) < parseFloat(objMinSize.width.toFixed(2))) {
             el.setAttribute('transform', originalMatrix);
             el.setAttribute('height', originalHeight);
             el.setAttribute('width', originalWidth);
             return;
           }
 
-          if (minSizeMode === 'new' && parseFloat(Math.abs(tempHeight).toFixed(2)) < parseFloat(objMinSize.height.toFixed(2))) {
+          if (minSizeMode === 'new' && !options.proportions && parseFloat(Math.abs(tempHeight).toFixed(2)) < parseFloat(objMinSize.height.toFixed(2))) {
             el.setAttribute('transform', originalMatrix);
             el.setAttribute('height', originalHeight);
             el.setAttribute('width', originalWidth);

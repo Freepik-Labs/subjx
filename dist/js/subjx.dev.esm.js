@@ -3586,11 +3586,11 @@ class DraggableSVG extends Transformable {
             height: realHeight
         } = el.getBoundingClientRect();
 
-        if (minSizeMode === 'new' && Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
+        if ((minSizeMode === 'new' && !options.proportions) && Math.abs(realWidth) <= objMinSize.width && deltaW < 0) {
             return;
         }
 
-        if (minSizeMode === 'new' && Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
+        if ((minSizeMode === 'new' && !options.proportions) && Math.abs(realHeight) <= objMinSize.height && deltaH < 0) {
             return;
         }
 
@@ -3610,7 +3610,7 @@ class DraggableSVG extends Transformable {
             width: tempWidth
         } = el.getBoundingClientRect();
 
-        if (minSizeMode === 'new' && parseFloat(Math.abs(tempWidth).toFixed(2)) < parseFloat(objMinSize.width.toFixed(2))) {
+        if ((minSizeMode === 'new' && !options.proportions) && parseFloat(Math.abs(tempWidth).toFixed(2)) < parseFloat(objMinSize.width.toFixed(2))) {
             el.setAttribute('transform', originalMatrix);
             el.setAttribute('height', originalHeight);
             el.setAttribute('width', originalWidth);
@@ -3618,7 +3618,7 @@ class DraggableSVG extends Transformable {
             return;
         }
 
-        if (minSizeMode === 'new' && parseFloat(Math.abs(tempHeight).toFixed(2)) < parseFloat(objMinSize.height.toFixed(2))) {
+        if ((minSizeMode === 'new' && !options.proportions) && parseFloat(Math.abs(tempHeight).toFixed(2)) < parseFloat(objMinSize.height.toFixed(2))) {
             el.setAttribute('transform', originalMatrix);
             el.setAttribute('height', originalHeight);
             el.setAttribute('width', originalWidth);
