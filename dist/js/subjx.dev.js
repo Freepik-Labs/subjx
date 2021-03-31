@@ -3367,11 +3367,32 @@
             return;
           }
 
+          var originalMatrix = el.getAttribute('transform');
+          var originalHeight = el.getAttribute('height');
+          var originalWidth = el.getAttribute('width');
           el.setAttribute('transform', matrixToString(res));
 
           if (withoutScaling) {
             el.setAttribute("width", newWidth);
             el.setAttribute("height", newHeight);
+          }
+
+          var _el$getBoundingClient2 = el.getBoundingClientRect(),
+              tempHeight = _el$getBoundingClient2.height,
+              tempWidth = _el$getBoundingClient2.width;
+
+          if (minSizeMode === 'new' && parseFloat(Math.abs(tempWidth).toFixed(2)) < parseFloat(objMinSize.width.toFixed(2))) {
+            el.setAttribute('transform', originalMatrix);
+            el.setAttribute('height', originalHeight);
+            el.setAttribute('width', originalWidth);
+            return;
+          }
+
+          if (minSizeMode === 'new' && parseFloat(Math.abs(tempHeight).toFixed(2)) < parseFloat(objMinSize.height.toFixed(2))) {
+            el.setAttribute('transform', originalMatrix);
+            el.setAttribute('height', originalHeight);
+            el.setAttribute('width', originalWidth);
+            return;
           }
 
           var newX = left - deltaW * (doH ? 0.5 : revX ? 1 : 0),
